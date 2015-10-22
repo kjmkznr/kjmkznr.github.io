@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Ssh on ただのメモ</title>
+    <link>https://kjmkznr.github.io/tags/ssh/</link>
+    <description>Recent content in Ssh on ただのメモ</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 23 Oct 2015 01:18:00 +0900</lastBuildDate>
+    <atom:link href="https://kjmkznr.github.io/tags/ssh/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>VaultのSSH Secret Backendを使ってみる</title>
+      <link>https://kjmkznr.github.io/post/vault-ssh-secret-backend/</link>
+      <pubDate>Fri, 23 Oct 2015 01:18:00 +0900</pubDate>
+      
+      <guid>https://kjmkznr.github.io/post/vault-ssh-secret-backend/</guid>
+      <description>
+
+&lt;p&gt;Vault 0.3がリリースされたときにSSHに関する機能が実装されたと言うのを見て気になっていたのですが、なかなか試せずにいたのですが、先日&lt;a href=&#34;http://connpass.com/event/19980/&#34;&gt;HashiCode#2&lt;/a&gt;に参加したので、その勢いで試してみました。&lt;/p&gt;
+
+&lt;p&gt;Vault の SSH Secret Backend はもの凄く大ざっぱに言うとVaultがSSHのパスワードや公開鍵の管理を行ってくれる機能です。&lt;/p&gt;
+
+&lt;h2 id=&#34;使うもの:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;使うもの&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Vault 0.3以上&lt;/li&gt;
+&lt;li&gt;OpenSSH&lt;/li&gt;
+&lt;li&gt;vault-ssh-helper&lt;/li&gt;
+&lt;li&gt;CentOS 7.0
+
+&lt;ul&gt;
+&lt;li&gt;ディストリはGentooでも何でも&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;ssh-secret-backend:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;SSH Secret Backend&lt;/h2&gt;
+
+&lt;p&gt;まずは Vault について理解を深めるために&lt;a href=&#34;https://vaultproject.io/intro/getting-started/install.html&#34;&gt;Getting Started&lt;/a&gt;を行ってみるとよいと思います。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ vault server -dev
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;このように&lt;code&gt;-dev&lt;/code&gt;を付けて起動すると何も考えずに各種機能を試せます。
+この dev モードはメモリだけで動作するので、終了すると設定した内容はすべて消えてしまいます。
+また、データの seal もされてないので、プロダクション環境では使わないようにしましょう。&lt;/p&gt;
+
+&lt;h3 id=&#34;vault-ssh-helper-のインストール:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;vault-ssh-helper のインストール&lt;/h3&gt;
+
+&lt;p&gt;Vault の操作の前に vault-ssh-helper をインストールする必要があります。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git clone https://github.com/hashicorp/vault-ssh-helper
+$ cd vault-ssh-helper
+$ make bootstrap
+$ make
+$ make install
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;次に設定ファイルを作ります。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo vi /etc/vault-ssh-helper.d/config.hcl
+vault_addr=&amp;quot;http://127.0.0.1:8200&amp;quot;
+ssh_mount_point=&amp;quot;ssh&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;PAMの設定を変更します。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo vi /etc/pam.d/sshd
+- auth       substack     password-auth
++ auth requisite pam_exec.so quiet expose_authtok log=/tmp/vaultssh.log /usr/local/bin/vault-ssh-helper -config-file=/etc/vault-ssh-helper.d/config.hcl
++ auth optional pam_unix.so no_set_pass use_first_pass nodelay
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;最後に /etc/ssh/sshd_config の以下の3つを変更しておきます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;ChallengeResponseAuthentication yes
+UsePAM yes
+PasswordAuthentication no
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;one-time-password-type:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;One Time Password Type&lt;/h3&gt;
+
+&lt;p&gt;それでは dev mode でOTPを試してみます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ export VAULT_ADDR=&#39;http://127.0.0.1:8200&#39;
+$ vault mount ssh
+Successfully mounted &#39;ssh&#39; at &#39;ssh&#39;!
+$ vault write ssh/roles/otp_key_role \
+    key_type=otp \
+    default_user=centos \
+    cidr_list=127.0.0.0/8,192.168.11.0/24
+Success! Data written to: ssh/roles/otp_key_role
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;以上がOTPの設定です。
+One-Time-Tokenを作ってみます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ vault write ssh/creds/otp_key_role ip=127.0.0.1
+Key             Value
+lease_id        ssh/creds/otp_key_role/ab69a54e-f845-d29a-0627-a3971cacb7b7
+lease_duration  2592000
+lease_renewable false
+key             0c9e7c24-64bb-8c71-3aa4-fdff88b31fde
+key_type        otp
+port            22
+username        centos
+ip              127.0.0.1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;ここで指定する &lt;code&gt;ip&lt;/code&gt; は前述の&lt;code&gt;cidr_list&lt;/code&gt;の範囲であれば何でも良いです。
+出力結果の&lt;code&gt;key&lt;/code&gt;がOTPです。&lt;/p&gt;
+
+&lt;p&gt;試してみます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ ssh centos@localhost 
+Password: 0c9e7c24-64bb-8c71-3aa4-fdff88b31fde
+[centos@localhost ~]$ exit
+$ ssh centos@localhost
+Password: 0c9e7c24-64bb-8c71-3aa4-fdff88b31fde
+Password: 
+Password: 
+Permission denied (publickey,gssapi-keyex,gssapi-with-mic,keyboard-interactive).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;このように一度使ってしまったOTPは再度利用できません。&lt;/p&gt;
+
+&lt;p&gt;次に他のユーザでログインできるOTP作ってみます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ vault write ssh/creds/otp_key_role ip=127.0.0.1 username=vagrant                                                                                                                                                                           
+Key             Value
+lease_id        ssh/creds/otp_key_role/f49cfd4e-907d-5cf7-1d80-c9fc932b5ad9
+lease_duration  2592000
+lease_renewable false
+key_type        otp
+port            22
+username        vagrant
+ip              127.0.0.1
+key             21a90e3b-fe47-4766-af2e-fcb0093c1864
+$ ssh vagrant@localhost
+Password: 21a90e3b-fe47-4766-af2e-fcb0093c1864
+[vagrant@localhost ~]$ 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;毎回 &lt;code&gt;vault write&lt;/code&gt; コマンドでOTPを作るのはめんどくさいという方は &lt;code&gt;vault ssh&lt;/code&gt; と言うコマンドが用意されています。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ vault ssh -role otp_key_role centos@localhost
+OTP for the session is 28535dc6-7b50-af74-b37f-4b6ebedcf50c
+[Note: Install &#39;sshpass&#39; to automate typing in OTP]
+Password: 28535dc6-7b50-af74-b37f-4b6ebedcf50c
+Last login: Thu Oct 22 23:55:06 2015 from localhost
+[centos@localhost ~]$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;書いてある通り &lt;code&gt;sshpass&lt;/code&gt; を入れておけばOTPの入力を省略できます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo yum install -y epel-release
+$ sudo yum install -y sshpass
+$ vault ssh -role otp_key_role centos@localhost
+Last login: Thu Oct 22 23:59:23 2015 from localhost
+[centos@localhost ~]$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;dynamic-type:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;Dynamic Type&lt;/h3&gt;
+
+&lt;p&gt;Dynamic Typeは公開鍵を使用して認証として利用する方式です。
+仕組みとしては、Vault サーバがログイン先のサーバ・ユーザの authorized_keys に一時的に生成した公開鍵をインジェクトするというものです。&lt;/p&gt;
+
+&lt;p&gt;インジェクトするためにSSHを利用するので、あらかじめVaultに追加した秘密鍵で生成した公開鍵を各サーバに登録しておく必要があります。
+また、Vault Serverがインジェクトに使用するユーザが sudo が使える権限を付与する必要があります。&lt;/p&gt;
+
+&lt;p&gt;また、今回はパスワード認証を行わないので&lt;code&gt;ChallengeResponseAuthentication&lt;/code&gt;は&lt;code&gt;no&lt;/code&gt;にしておきましょう。&lt;/p&gt;
+
+&lt;p&gt;最初に秘密鍵・公開鍵ペアの作成し秘密鍵をVaultに登録します。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[vagrant@localhost ~]$ openssl genrsa -out shared_key.pem 2048                                                                                                                                                                                                                 
+Generating RSA private key, 2048 bit long modulus
+............................................................+++
+.........................+++
+e is 65537 (0x10001)
+[vagrant@localhost ~]$ vault write ssh/keys/dev_key key=@shared_key.pem
+Success! Data written to: ssh/keys/dev_key
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;各サーバの sudoers に以下の設定を入れます。
+Vault Serverがログインに利用するユーザは &lt;code&gt;vaultadmin&lt;/code&gt; とします。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[vagrant@localhost ~]$ ssh-keygen -f shared_key.pem -y | sudo tee -a /home/vaultadmin/.ssh/authorized_keys
+[vagrant@localhost ~]$ visudo
+vaultadmin   ALL=(ALL)NOPASSWD: ALL
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;最後にDynamic Key Roleを有効化します。
+&lt;code&gt;admin_user&lt;/code&gt; は Vault serverがログインに使用するユーザである &lt;code&gt;vaultadmin&lt;/code&gt; を指定します。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[vagrant@localhost ~]$ vault write ssh/roles/dynamic_key_role \
+    key_type=dynamic \
+    key=dev_key \
+    admin_user=vaultadmin \
+    default_user=centos \
+    cidr_list=127.0.0.0/8,192.168.33.0/24
+Success! Data written to: ssh/roles/dynamic_key_role
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;では、キーペアを作成してみます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[vagrant@localhost ~]$ vault write ssh/creds/dynamic_key_role ip=127.0.0.1
+Key             Value
+lease_id        ssh/creds/dynamic_key_role/657543b6-26ee-370c-d67c-bf0965171afd
+lease_duration  2592000
+lease_renewable true
+ip              127.0.0.1
+key             -----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQC1fPQ1wA0eThBxPCu3WwCBWontKrrYaiOXJkjGkPl+fFSBwIP3
+7WUzfVrI9oYEeFisRvbsi1NjMeAFpHwC5vGbqGWd8UGUZW5PDyfoPOnj9jsbUd5U
+kPz1nZfxKke73WpXShyqtO3nIiF3BU6XbBSJuOuvDCC/P5ZCL/vSYHCjcQIDAQAB
+AoGBAKgUVDtfZQbW92VXe4kxL3Oc/TX3p9l72wBGBYpYg6f/z2fnepDnfB1GkAik
+P5PuPPk4M8D4e77XVwkCv5MUfVbC52fQjpVktKsdvt4TMx9r3RrIm/xEkxRNJSr1
+vYIXcfBzh49s3CwPrMAOXugE0/1lx2dVjovS8BZbv9wBm9vBAkEAzj4j4PWcSMIn
+5MPqyQ8cvWAPdOAKIDXStzTBZ3drHTnE1s2AlSVuBMTnDAvIBXHGpy8lTsysHGqk
+OxDWhVseGQJBAOFF7jsSdaU9nhoUk+9wmK/iXrTbjJgzRegmBPnVRaZQNurxcv9p
+wQqqMTynP0rIBWuun32wyxQJiS4y9jbwqxkCQQDC7rrMqnhv0IsSTxa/uHfqijux
+tPv9G8IxBTzzxUxJkEt61zt8PKdy/ISAvzXr53Dinc3+X7chGK5nYW/RFaEpAkB8
+2shd/y4rJkqRQ+R2Kd7GZN1+ucxjss9FCoVpfpX6xqyZbLcC7rcqVQezCTMgHFo8
+w2zsOedkNKDOdTpXWu5JAkBWsUq1pLv3B7L5ZgGzE3lIzCNJAsrzoyB+VCp3LsxR
+XQ4i1krzcUCyh3g58CdN7mS82kkrQ9iGkTkbu7B6JmVZ
+-----END RSA PRIVATE KEY-----
+key_type        dynamic
+port            22
+username        centos
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;key&lt;/code&gt;が生成された秘密鍵です。ファイルに保存します。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[vagrant@localhost ~]$ vi dynkey.pem
+-----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQC1fPQ1wA0eThBxPCu3WwCBWontKrrYaiOXJkjGkPl+fFSBwIP3
+7WUzfVrI9oYEeFisRvbsi1NjMeAFpHwC5vGbqGWd8UGUZW5PDyfoPOnj9jsbUd5U
+kPz1nZfxKke73WpXShyqtO3nIiF3BU6XbBSJuOuvDCC/P5ZCL/vSYHCjcQIDAQAB
+AoGBAKgUVDtfZQbW92VXe4kxL3Oc/TX3p9l72wBGBYpYg6f/z2fnepDnfB1GkAik
+P5PuPPk4M8D4e77XVwkCv5MUfVbC52fQjpVktKsdvt4TMx9r3RrIm/xEkxRNJSr1
+vYIXcfBzh49s3CwPrMAOXugE0/1lx2dVjovS8BZbv9wBm9vBAkEAzj4j4PWcSMIn
+5MPqyQ8cvWAPdOAKIDXStzTBZ3drHTnE1s2AlSVuBMTnDAvIBXHGpy8lTsysHGqk
+OxDWhVseGQJBAOFF7jsSdaU9nhoUk+9wmK/iXrTbjJgzRegmBPnVRaZQNurxcv9p
+wQqqMTynP0rIBWuun32wyxQJiS4y9jbwqxkCQQDC7rrMqnhv0IsSTxa/uHfqijux
+tPv9G8IxBTzzxUxJkEt61zt8PKdy/ISAvzXr53Dinc3+X7chGK5nYW/RFaEpAkB8
+2shd/y4rJkqRQ+R2Kd7GZN1+ucxjss9FCoVpfpX6xqyZbLcC7rcqVQezCTMgHFo8
+w2zsOedkNKDOdTpXWu5JAkBWsUq1pLv3B7L5ZgGzE3lIzCNJAsrzoyB+VCp3LsxR
+XQ4i1krzcUCyh3g58CdN7mS82kkrQ9iGkTkbu7B6JmVZ
+-----END RSA PRIVATE KEY-----
+[vagrant@localhost ~]$ chmod 400 dynkey.pem
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;保存した鍵を利用し、ログインしてみます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[vagrant@localhost ~]$ ssh -i dynkey.pem centos@localhost
+[centos@localhost ~]$ exit
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;こちらはRevokeするか、&lt;code&gt;lease_duration&lt;/code&gt;が経過するまで鍵を使用することが出来ます。
+Revokeは次のように行います。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[vagrant@localhost ~]$ vault revoke ssh/creds/dynamic_key_role/657543b6-26ee-370c-d67c-bf0965171afd
+Key revoked with ID &#39;ssh/creds/dynamic_key_role/594ac177-f4b2-b840-31ab-4cea0b15e18a&#39;.
+[vagrant@localhost ~]$ ssh -i dynkey.pem centos@localhost
+Permission denied (publickey,gssapi-keyex,gssapi-with-mic).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;まとめ:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;まとめ&lt;/h2&gt;
+
+&lt;p&gt;Vaultを利用することでSSHの鍵の管理をVaultに任せてしまうことができるので、各サーバに鍵の展開を行う必要はなくなりそうです。
+今回は使ってみることを優先してみましたが、実際に利用する際は&lt;a href=&#34;https://vaultproject.io/docs/auth/index.html&#34;&gt;Auth Backends&lt;/a&gt;や&lt;a href=&#34;https://vaultproject.io/docs/audit/index.html&#34;&gt;Audit Backends&lt;/a&gt;の設定が必要です。&lt;/p&gt;
+
+&lt;h2 id=&#34;参考文献:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;参考文献&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://vaultproject.io/docs/secrets/ssh/index.html&#34;&gt;Secret Backend: SSH - Vault by HashiCorp&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
