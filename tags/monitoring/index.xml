@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Monitoring on ただのメモ</title>
+    <link>https://kjmkznr.github.io/tags/monitoring/</link>
+    <description>Recent content in Monitoring on ただのメモ</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 05 Oct 2015 22:09:00 +0900</lastBuildDate>
+    <atom:link href="https://kjmkznr.github.io/tags/monitoring/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Consul, Consul TemplateとPrometheusで行う簡易メトリクス収集</title>
+      <link>https://kjmkznr.github.io/post/consul-prometheus/</link>
+      <pubDate>Mon, 05 Oct 2015 22:09:00 +0900</pubDate>
+      
+      <guid>https://kjmkznr.github.io/post/consul-prometheus/</guid>
+      <description>
+
+&lt;p&gt;Consulをサービスディスカバリに使い、Consul TemplateでPrometheusの設定ファイルを生成するという構成で、ノードが増加しても自動的にPrometheusの収集対象が増えるような構成を作ってみました。&lt;/p&gt;
+
+&lt;h2 id=&#34;prometheus:b2b2479edabad69dad66d770f3651d14&#34;&gt;Prometheus&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://prometheus.io/&#34;&gt;Prometheus&lt;/a&gt;はSoundCloudが開発を行っている監視システムです。
+Graphiteと違いPrometheusはPull型のアーキテクチャをとっています。Prometheusサーバがexporterと呼ばれる所謂エージェントに値を取りに行く形です。&lt;/p&gt;
+
+&lt;p&gt;Push型に比べれば、Pull型は負荷が集中するので収集できるノード数は少なくなると思います。
+ただ、Push型は何らかの理由でメトリクスデータをPushできなくなったときに、検知が困難になるというデメリットもあります。
+Pull型であれば取れなかったことが検知でき、その理由も調べることが可能です。&lt;/p&gt;
+
+&lt;p&gt;時系列データストアは自前の物を利用しているようですが、OpenTSDBも利用可能らしいです。
+独自のクエリをサポートしており、収集したデータを加工して表示することも出来ます。
+グラフ表示機能はPrometheusサーバにも簡易的な物が用意されていますが、 Rails で書かれた PromDash というものを利用するのが良さそうです。
+その他、Push型のデータを収集するための pushgateway や、アラートを出すための alertmanager もあります。&lt;/p&gt;
+
+&lt;p&gt;今回は Prometheus Server と node_exporter を利用します。&lt;/p&gt;
+
+&lt;h2 id=&#34;動作環境:b2b2479edabad69dad66d770f3651d14&#34;&gt;動作環境&lt;/h2&gt;
+
+&lt;p&gt;今回は AWS EC2 を使用します。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Amazon EC2&lt;/li&gt;
+&lt;li&gt;Amazon Linux 2015.03.1
+
+&lt;ul&gt;
+&lt;li&gt;Prometheus 0.14.0&lt;/li&gt;
+&lt;li&gt;node_exporter 0.9.0&lt;/li&gt;
+&lt;li&gt;Consul 0.5.2&lt;/li&gt;
+&lt;li&gt;Consul Template 0.10.0&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;tags:b2b2479edabad69dad66d770f3651d14&#34;&gt;Tags&lt;/h3&gt;
+
+&lt;p&gt;EC2のタグは以下のようにしておきます。&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Node&lt;/th&gt;
+&lt;th&gt;Tag&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;server1&lt;/td&gt;
+&lt;td&gt;consul-leader: True&lt;/td&gt;
+&lt;td&gt;Consul Server, Prometheus Server&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;node1&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;Consul Agent, node_exporter&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;node2&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;Consul Agent, node_exporter&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&#34;ports:b2b2479edabad69dad66d770f3651d14&#34;&gt;Ports&lt;/h3&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Program&lt;/th&gt;
+&lt;th&gt;Protocol&lt;/th&gt;
+&lt;th&gt;Port&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Prometheus Server&lt;/td&gt;
+&lt;td&gt;TCP&lt;/td&gt;
+&lt;td&gt;9090&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;node_exporter&lt;/td&gt;
+&lt;td&gt;TCP&lt;/td&gt;
+&lt;td&gt;9100&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Consul Server&lt;/td&gt;
+&lt;td&gt;TCP&lt;/td&gt;
+&lt;td&gt;8300, 8301, 8400, 8500, 8600&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;UDP&lt;/td&gt;
+&lt;td&gt;8600&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Consul Agent&lt;/td&gt;
+&lt;td&gt;TCP&lt;/td&gt;
+&lt;td&gt;8400, 8500&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;UDP&lt;/td&gt;
+&lt;td&gt;8600&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2 id=&#34;consul-server-と-consul-template-prometheusの設定:b2b2479edabad69dad66d770f3651d14&#34;&gt;Consul Server と Consul template, Prometheusの設定&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://consul.io/&#34;&gt;Consul&lt;/a&gt;はPrometheusに比べれば有名なので説明は割愛。
+インストール手順も割愛。&lt;/p&gt;
+
+&lt;p&gt;まずは、ConsulとConsul Templateが起動するようにします。
+Consul Serverのアドレスを取得するためにEC2のタグを参照するので、IAM Roleを付けておきます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{
+    &amp;quot;Version&amp;quot;: &amp;quot;2012-10-17&amp;quot;,
+    &amp;quot;Statement&amp;quot;: [
+        {
+            &amp;quot;Effect&amp;quot;: &amp;quot;Allow&amp;quot;,
+            &amp;quot;Action&amp;quot;: [
+                &amp;quot;ec2:DescribeInstances&amp;quot;
+            ],
+            &amp;quot;Resource&amp;quot;: [
+                &amp;quot;arn:aws:ec2:::*&amp;quot;
+            ]
+        }
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;consul-server:b2b2479edabad69dad66d770f3651d14&#34;&gt;Consul Server&lt;/h3&gt;
+
+&lt;p&gt;Upstart を使用し Consul Serverを起動させます。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;/etc/init/consul_server.conf&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;description &amp;quot;Consul&amp;quot;
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+respawn
+
+script
+  if [ -f &amp;quot;/etc/service/consul&amp;quot; ]; then
+    . /etc/service/consul
+  fi
+
+  # Make sure to use all our CPUs, because Consul can block a scheduler thread
+  export GOMAXPROCS=`nproc`
+  exec /usr/local/bin/consul agent \
+   -server \
+   -data-dir=&amp;quot;/var/lib/consul/&amp;quot; \
+   -bootstrap-expect １ \
+   -config-dir=&amp;quot;/etc/consul.d/&amp;quot; \
+   ${CONSUL_FLAGS} \
+   &amp;gt;&amp;gt;/var/log/consul.log 2&amp;gt;&amp;amp;1
+end script
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo initctl start consul_server
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;consul-template:b2b2479edabad69dad66d770f3651d14&#34;&gt;Consul Template&lt;/h3&gt;
+
+&lt;p&gt;Consul templateはConsulのクラスタ情報を元にファイルを生成してくれます。
+クラスタに変化があると、ファイルを更新し、指定したコマンドを実行してくれます。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;/etc/init/consul_template.conf&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;description &amp;quot;Consul template&amp;quot;
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+respawn
+
+script
+  exec /usr/local/bin/consul-template \
+      -consul 127.0.0.1:8500 \
+      -template &amp;quot;/opt/templates/prometheus.ctmpl:/etc/prometheus/prometheus.yml:initctl restart prometheus&amp;quot; &amp;gt;&amp;gt; /var/log/ctemplate.log 2&amp;gt;&amp;amp;1
+end script
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo initctl start consul_template
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;prometheus-1:b2b2479edabad69dad66d770f3651d14&#34;&gt;Prometheus&lt;/h3&gt;
+
+&lt;h4 id=&#34;テンプレートの用意:b2b2479edabad69dad66d770f3651d14&#34;&gt;テンプレートの用意&lt;/h4&gt;
+
+&lt;p&gt;Consul TemplateでPrometheusのコンフィグを生成するためテンプレートを用意します。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;/opt/templates/prometheus.ctmpl&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;global:
+  scrape_interval:     1s
+  evaluation_interval: 3s
+
+  labels:
+    monitor: &#39;web monitor&#39;
+
+scrape_configs:
+  - job_name: &#39;prometheus&#39;
+    scrape_interval: 10s
+    scrape_timeout: 10s
+    target_groups:
+      - targets: [&#39;localhost:9090&#39;]
+
+  - job_name: &#39;web&#39;
+    scrape_interval: 10s
+    scrape_timeout: 10s
+    target_groups:
+      - targets: [{{range service &amp;quot;web&amp;quot;}}&#39;{{.Address}}:9100&#39;,{{end}}]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;service名は &lt;code&gt;web&lt;/code&gt; としています。
+この値は後述する Consul Agent とあわせる必要があります。&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;scrape_interval&lt;/code&gt;は値を取得する間隔を指定します。&lt;/p&gt;
+
+&lt;p&gt;Prometheus には&lt;a href=&#34;http://prometheus.io/docs/operating/configuration/#consul-sd-configurations-consul_sd_config&#34;&gt;Consulと連携する機能&lt;/a&gt;があるようなのですが、イマイチ使い方が判りませんでした。
+これが使えれば、Consul Templateは不要かもしれません。&lt;/p&gt;
+
+&lt;h4 id=&#34;prometheusのインストール:b2b2479edabad69dad66d770f3651d14&#34;&gt;Prometheusのインストール&lt;/h4&gt;
+
+&lt;p&gt;ここはまあ、普通に。
+Ansible Playbookとかにしておくと良いかもしれません。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo yum install golang git mercurial gcc-c++ epel-release
+$ sudo yum install --enablerepo=epel protobuf
+$ cd /usr/local/src
+$ git clone https://github.com/prometheus/prometheus.git
+$ cd prometheus
+$ make build
+$ sudo useradd -s /bin/false -m prometheus
+$ sudo mkdir /etc/prometheus
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;初期の設定ファイルがないと起動しないので、作成しておきます。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;/etc/prometheus/prometheus.yml&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;global:
+  scrape_interval:     1s
+  evaluation_interval: 3s
+
+  labels:
+    monitor: &#39;web monitor&#39;
+
+scrape_configs:
+  - job_name: &#39;prometheus&#39;
+    scrape_interval: 10s
+    scrape_timeout: 10s
+    target_groups:
+      - targets: [&#39;localhost:9090&#39;]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;PrometheusもUpstartで起動させます。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;/etc/init/prometheus.conf&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;description &amp;quot;Prometheus&amp;quot;
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+respawn
+
+script
+  /usr/local/src/prometheus/prometheus -config.file=/etc/prometheus/prometheus.yml
+end script
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo initctl start prometheus
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;consul-agentの設定とサービスの定義:b2b2479edabad69dad66d770f3651d14&#34;&gt;Consul Agentの設定とサービスの定義&lt;/h2&gt;
+
+&lt;h3 id=&#34;consul-agent:b2b2479edabad69dad66d770f3651d14&#34;&gt;Consul Agent&lt;/h3&gt;
+
+&lt;p&gt;こちらもConsul Serverと同じく Upstart で起動させます。
+起動する際に、Consul Serverのアドレスを AWS CLI を使って取得し、クラスタへJoinさせます。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;/etc/init/consul_agent.conf&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;description &amp;quot;Consul&amp;quot;
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+respawn
+
+script
+  if [ -f &amp;quot;/etc/service/consul&amp;quot; ]; then
+    . /etc/service/consul
+  fi
+
+  # Make sure to use all our CPUs, because Consul can block a scheduler thread
+  export GOMAXPROCS=`nproc`
+  JOIN_TO=&amp;quot;$(aws ec2 describe-instances --query &#39;Reservations[].Instances[?State.Name==`running`].PrivateIpAddress&#39; --output text --filters &#39;Name=tag:consul-leader,Values=true&#39;)&amp;quot;
+
+  exec /usr/local/bin/consul agent \
+   -data-dir=&amp;quot;/var/lib/consul&amp;quot; \
+   -config-dir=&amp;quot;/etc/consul.d&amp;quot; \
+   -join ${JOIN_TO} \
+   ${CONSUL_FLAGS} \
+   &amp;gt;&amp;gt;/var/log/consul.log 2&amp;gt;&amp;amp;1
+end script
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;ついでにサービスの定義も行います。
+Consulは簡易なサービスのチェックも行えるようになっております。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;/etc/consul.d/web.json&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{
+  &amp;quot;services&amp;quot;:[
+    {
+      &amp;quot;name&amp;quot;: &amp;quot;Web&amp;quot;,
+      &amp;quot;port&amp;quot;: 80,
+      &amp;quot;check&amp;quot;: {
+        &amp;quot;script&amp;quot;: &amp;quot;curl -s http://localhost/ -o /dev/null&amp;quot;,
+        &amp;quot;interval&amp;quot;: &amp;quot;10s&amp;quot;
+      },
+      &amp;quot;tags&amp;quot;: [&amp;quot;http&amp;quot;]
+    }
+  ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo initctl start consul_agent
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;これらを組み込んだAMIを作っておいて、あとはインスタンスを起動していけば自動的にどんどん監視対象が増えていきます。&lt;/p&gt;
+
+&lt;h2 id=&#34;promdash:b2b2479edabad69dad66d770f3651d14&#34;&gt;PromDash&lt;/h2&gt;
+
+&lt;p&gt;PromDashというダッシュボード的なWebインターフェイスが提供されています。
+PromDashはRailsで出来ており、動かすのがめんどうなので、Dockerで動かすのがオススメです。&lt;/p&gt;
+
+&lt;p&gt;PromDash内のデータベースには、PrometheusサーバのURLと表示するグラフに関する情報のみ記録されてるだけなので、Dockerコンテナが消えても、収集したメトリクスは消えません。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ docker pull prom/promdash
+$ docker run -v /tmp/prom:/tmp/prom -e DATABASE_URL=sqlite3:/tmp/prom/file.sqlite3 prom/promdash ./bin/rake db:migrate
+$ docker run -d -p 3000:3000 -v /tmp/prom:/tmp/prom -e DATABASE_URL=sqlite3:/tmp/prom/file.sqlite3 prom/promdash
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;所感:b2b2479edabad69dad66d770f3651d14&#34;&gt;所感&lt;/h2&gt;
+
+&lt;p&gt;監視を行うのに一通りの機能は揃っていますが、長期的に運用するときにどのような問題が出るか不透明な点はあります。
+短期間使ってみた感じでは、短期間のメトリクス収集にはとても有用な感じがしました。
+クエリによる値の集計なども簡単にできてよいです。&lt;/p&gt;
+
+&lt;p&gt;プロダクション環境では本格的に使ったわけではありませんが、イベントなどで使うインフラのメトリクス収集に何回か利用しています。&lt;/p&gt;
+
+&lt;p&gt;使い分けとしては、インスタントにメトリクスをとりたい場合は pcp + Vector, 短期間のメトリクス収集には Prometheus, 長期的な監視やメトリクス収集は Zabbix や Sensu + Graphite がよいかなと。&lt;/p&gt;
+
+&lt;p&gt;ほんとはデータの管理とかやりたくないので、Mackerel, Datadog が安くなればいいですね。&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
