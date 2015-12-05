@@ -6,8 +6,212 @@
     <description>Recent content in Hashicorp on ただのメモ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 23 Oct 2015 01:18:00 +0900</lastBuildDate>
+    <lastBuildDate>Sat, 05 Dec 2015 13:00:00 +0900</lastBuildDate>
     <atom:link href="https://kjmkznr.github.io/tags/hashicorp/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Terraform: AWSマルチリージョンな環境を構築してみる</title>
+      <link>https://kjmkznr.github.io/post/20151205/terraform-multi-region/</link>
+      <pubDate>Sat, 05 Dec 2015 13:00:00 +0900</pubDate>
+      
+      <guid>https://kjmkznr.github.io/post/20151205/terraform-multi-region/</guid>
+      <description>
+
+&lt;p&gt;&lt;a href=&#34;http://qiita.com/advent-calendar/2015/hashicorp&#34;&gt;HashiCorp Advent Calendar 2015&lt;/a&gt;の5日目の担当が空いていたので書いてみました。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;クラウドを利用されているみなさんは、リージョン障害などに備えるために複数のリージョンを利用されているかと思います。
+複数のリージョンに展開する際、どのような方法で行ってますでしょうか？&lt;/p&gt;
+
+&lt;p&gt;CloudFormation Stackを複数のリージョンで作ったり、手動でポチポチやったり、SDKやAWSCLIを使ったスクリプトを使ったり&amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;Terraform を使えば簡単に複数のリージョンを統一的に扱うことが出来ます。&lt;/p&gt;
+
+&lt;p&gt;Terraform は複数のプロバイダ(AWSやGCPなど)を一つのテンプレートの中に混在することが出来ます。
+また、1種類のプロバイダを複数使用することも出来るため、AWSにマルチリージョンな環境を構築できます。&lt;/p&gt;
+
+&lt;p&gt;AWS謹製のCloudFormationは、S3やRoute53などのグローバルリソースを除き、そのCloudFormation Stackを作成しているリージョンのリソースしか作成することが出来ません。
+もちろん、GCPやDigitalOceanなど外部のサービスを利用することも出来ません。&lt;/p&gt;
+
+&lt;p&gt;このあたりは Terraform の強みですね。&lt;/p&gt;
+
+&lt;h2 id=&#34;マルチリージョン基本編:3574440b8aec5afbdd98dd756b561ced&#34;&gt;マルチリージョン基本編&lt;/h2&gt;
+
+&lt;p&gt;まずは基本的な複数のプロバイダの使い方についてです。&lt;/p&gt;
+
+&lt;p&gt;シングルリージョンでAWSを利用する場合は以下のように記述します。
+&lt;code&gt;aws_&lt;/code&gt; で始まるリソースは &lt;code&gt;aws&lt;/code&gt; プロバイダが利用されます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;provider &amp;quot;aws&amp;quot; {
+    region = &amp;quot;ap-northeast-1&amp;quot;
+}
+
+resource &amp;quot;aws_instance&amp;quot; &amp;quot;instance-tokyo&amp;quot; {
+    instance_type = &amp;quot;t2.micro&amp;quot;
+    ami           = &amp;quot;ami-383c1956&amp;quot;
+    tag {
+        Name = &amp;quot;Tokyo Region&amp;quot;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;マルチリージョンで利用したい場合、&lt;code&gt;provider &amp;quot;aws&amp;quot;&lt;/code&gt; を複数書けば良いというわけではありません。
+と言ってもそんなに難しいことをやるわけではなく、どちらのプロバイダを利用するのかを識別するために&lt;code&gt;alias&lt;/code&gt;を追加するだけです。&lt;/p&gt;
+
+&lt;p&gt;あとは Resource の定義でどのプロバイダを使用するかを&lt;code&gt;provider&lt;/code&gt;で指定します。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;provider &amp;quot;aws&amp;quot; {
+    region = &amp;quot;ap-northeast-1&amp;quot;
+    alias = &amp;quot;tokyo&amp;quot;
+}
+provider &amp;quot;aws&amp;quot; {
+    region = &amp;quot;ap-southeast-1&amp;quot;
+    alias = &amp;quot;singapore&amp;quot;
+}
+
+resource &amp;quot;aws_instance&amp;quot; &amp;quot;instance-tokyo&amp;quot; {
+    provider      = &amp;quot;aws.tokyo&amp;quot;
+    instance_type = &amp;quot;t2.micro&amp;quot;
+    ami           = &amp;quot;ami-383c1956&amp;quot;
+    tag {
+        Name = &amp;quot;Tokyo Region&amp;quot;
+    }
+}
+resource &amp;quot;aws_instance&amp;quot; &amp;quot;instance-singapore&amp;quot; {
+    provider      = &amp;quot;aws.singapore&amp;quot;
+    instance_type = &amp;quot;t2.micro&amp;quot;
+    ami           = &amp;quot;ami-c9b572aa&amp;quot;
+    tag {
+        Name = &amp;quot;Singapore Region&amp;quot;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;マルチリージョン応用編:3574440b8aec5afbdd98dd756b561ced&#34;&gt;マルチリージョン応用編&lt;/h2&gt;
+
+&lt;p&gt;マルチリージョンにする大きな理由として、冗長性の確保が挙げられると思います。
+環境を冗長構成する場合、同じ物をスタンプのように複数のリージョンに展開していくかと思いますが、前述の方法では&lt;code&gt;provider&lt;/code&gt;と&lt;code&gt;ami&lt;/code&gt;だけが違うリソースを大量に定義していかなければならず、非常にめんどくさいですし、修正時に一部のリージョンを変更し忘れるといったオペミスも発生しやすくなります。&lt;/p&gt;
+
+&lt;p&gt;リージョン毎に同じリソースを展開する場合、共通する部分をモジュールとしてまとめてしまうのが簡単です。&lt;/p&gt;
+
+&lt;p&gt;今回サンプルとして作成するテンプレートのディレクトリ構成は以下のようにします。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;./global.tf
+./main.tf
+./regional-resource/main.tf
+./regional-resource/variables.tf
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;モジュール側のリソース定義:3574440b8aec5afbdd98dd756b561ced&#34;&gt;モジュール側のリソース定義&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;./regional-resource/main.tf&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;provider &amp;quot;aws&amp;quot; {
+    region = &amp;quot;${var.region}&amp;quot;
+}
+
+resource &amp;quot;aws_instance&amp;quot; &amp;quot;instance&amp;quot; {
+    instance_type               = &amp;quot;t2.micro&amp;quot;
+    ami                         = &amp;quot;${lookup(var.ami_id, var.region)}&amp;quot;
+    associate_public_ip_address = true
+    tag {
+        Name = &amp;quot;${var.name}&amp;quot;
+    }
+}
+
+output &amp;quot;public_ip&amp;quot; {
+    value = &amp;quot;${aws_instance.instance.public_ip}&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;./regional-resource/variables.tf&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;variable &amp;quot;region&amp;quot; {}
+variable &amp;quot;name&amp;quot; {}
+variable &amp;quot;ami_id&amp;quot; {
+    default {
+        ap-northeast-1  = &amp;quot;ami-383c1956&amp;quot;
+        ap-southeast-1  = &amp;quot;ami-c9b572aa&amp;quot;
+        ap-southeast-2  = &amp;quot;ami-48d38c2b&amp;quot;
+        us-east-1       = &amp;quot;ami-60b6c60a&amp;quot;
+        us-west-1       = &amp;quot;ami-d5ea86b5&amp;quot;
+        us-west-2       = &amp;quot;ami-f0091d91&amp;quot;
+        eu-west-1       = &amp;quot;ami-bff32ccc&amp;quot;
+        eu-central-1    = &amp;quot;ami-bc5b48d0&amp;quot;
+        sa-east-1       = &amp;quot;ami-6817af04&amp;quot;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;モジュールを使う側のリソース定義:3574440b8aec5afbdd98dd756b561ced&#34;&gt;モジュールを使う側のリソース定義&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;./main.tf&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;module &amp;quot;ap-northeast-1&amp;quot; {
+    source = &amp;quot;./regional-resource&amp;quot;
+
+    region   = &amp;quot;ap-northeast-1&amp;quot;
+    name     = &amp;quot;Tokyo&amp;quot;
+}
+module &amp;quot;ap-southeast-1&amp;quot; {
+    source = &amp;quot;./regional-resource&amp;quot;
+
+    region   = &amp;quot;ap-southeast-1&amp;quot;
+    name     = &amp;quot;Singapore&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;./global.tf&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;resource &amp;quot;aws_route53_zone&amp;quot; &amp;quot;primary&amp;quot; {
+   name = &amp;quot;example.com&amp;quot;
+}
+
+resource &amp;quot;aws_route53_record&amp;quot; &amp;quot;www&amp;quot; {
+   zone_id = &amp;quot;${aws_route53_zone.primary.zone_id}&amp;quot;
+   name = &amp;quot;www.example.com&amp;quot;
+   type = &amp;quot;A&amp;quot;
+   ttl = &amp;quot;300&amp;quot;
+   records = [
+       &amp;quot;${module.ap-northeast-1.public_ip}&amp;quot;,
+       &amp;quot;${module.ap-southeast-1.public_ip}&amp;quot;,
+   ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;global.tf&lt;/code&gt; ではRoute53にゾーンを作成し、東京都シンガポールのインスタンスのIPアドレスを登録しています。&lt;/p&gt;
+
+&lt;p&gt;以上のテンプレートで出来上がる構成がこんな感じです。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://kjmkznr.github.io/images/20151205/terraform_multi-region.png&#34; alt=&#34;multi region diagram&#34; /&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;provision:3574440b8aec5afbdd98dd756b561ced&#34;&gt;Provision&lt;/h3&gt;
+
+&lt;p&gt;モジュールを使うと、単に &lt;code&gt;terraform apply&lt;/code&gt; とするだけではダメで先に &lt;code&gt;terraform get&lt;/code&gt; を行う必要があります。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ terraform get -update=true
+$ terraform plan -module-depth=-1
+$ terraform apply
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;今回はローカルファイルシステムにあるモジュールを使いましたが、Gitなどからも取ってくることが出来ます。(&lt;a href=&#34;https://terraform.io/docs/modules/usage.html&#34;&gt;Using Modules&lt;/a&gt;)&lt;/p&gt;
+
+&lt;h2 id=&#34;まとめ:3574440b8aec5afbdd98dd756b561ced&#34;&gt;まとめ&lt;/h2&gt;
+
+&lt;p&gt;このように、Terraformを使えば簡単にマルチリージョンな環境を手に入れることができます。
+マルチリージョンどころかマルチクラウドな環境も、今回よりちょっと大変ではありますが実現できます。&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>VaultのSSH Secret Backendを使ってみる</title>

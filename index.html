@@ -47,6 +47,39 @@
       
         <div class="post-header-home">
   <h1 class="post-title-home">
+    <a href="https://kjmkznr.github.io/post/20151205/terraform-multi-region">Terraform: AWSマルチリージョンな環境を構築してみる</a>
+  </h1>
+  <p class="text-muted">Dec 5, 2015</p>
+
+</div>
+<div class="post-excerpt-home">
+  <p><a href="http://qiita.com/advent-calendar/2015/hashicorp">HashiCorp Advent Calendar 2015</a>の5日目の担当が空いていたので書いてみました。</p>
+
+<hr />
+
+<p>クラウドを利用されているみなさんは、リージョン障害などに備えるために複数のリージョンを利用されているかと思います。
+複数のリージョンに展開する際、どのような方法で行ってますでしょうか？</p>
+
+<p>CloudFormation Stackを複数のリージョンで作ったり、手動でポチポチやったり、SDKやAWSCLIを使ったスクリプトを使ったり&hellip;</p>
+
+<p>Terraform を使えば簡単に複数のリージョンを統一的に扱うことが出来ます。</p>
+
+<p>Terraform は複数のプロバイダ(AWSやGCPなど)を一つのテンプレートの中に混在することが出来ます。
+また、1種類のプロバイダを複数使用することも出来るため、AWSにマルチリージョンな環境を構築できます。</p>
+
+<p>AWS謹製のCloudFormationは、S3やRoute53などのグローバルリソースを除き、そのCloudFormation Stackを作成しているリージョンのリソースしか作成することが出来ません。
+もちろん、GCPやDigitalOceanなど外部のサービスを利用することも出来ません。</p>
+
+<p>このあたりは Terraform の強みですね。</p>
+
+  <p class="text-right"><a href="https://kjmkznr.github.io/post/20151205/terraform-multi-region">Continue Reading &rarr;</a></p>
+</div>
+
+      
+    
+      
+        <div class="post-header-home">
+  <h1 class="post-title-home">
     <a href="https://kjmkznr.github.io/post/vault-ssh-secret-backend">VaultのSSH Secret Backendを使ってみる</a>
   </h1>
   <p class="text-muted">Oct 23, 2015</p>
@@ -80,7 +113,7 @@
     
     <hr>
     <div class="home-read-more">
-      <a href="https://kjmkznr.github.io/post" class="btn btn-primary btn-block btn-lg">View All 2 Articles →</a>
+      <a href="https://kjmkznr.github.io/post" class="btn btn-primary btn-block btn-lg">View All 3 Articles →</a>
     </div>
   </div>
   <div class="col-sm-4">
