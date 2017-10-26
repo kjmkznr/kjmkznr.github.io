@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>ただのメモ</title>
-    <link>https://kjmkznr.github.io/</link>
-    <description>Recent content on ただのメモ</description>
+    <title>ただのメモ on ただのメモ</title>
+    <link>https://kjmkznr.github.io/index.xml</link>
+    <description>Recent content in ただのメモ on ただのメモ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 05 Dec 2015 13:00:00 +0900</lastBuildDate>
-    <atom:link href="https://kjmkznr.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Terraform: AWSマルチリージョンな環境を構築してみる</title>
@@ -15,9 +15,7 @@
       <pubDate>Sat, 05 Dec 2015 13:00:00 +0900</pubDate>
       
       <guid>https://kjmkznr.github.io/post/20151205/terraform-multi-region/</guid>
-      <description>
-
-&lt;p&gt;&lt;a href=&#34;http://qiita.com/advent-calendar/2015/hashicorp&#34;&gt;HashiCorp Advent Calendar 2015&lt;/a&gt;の5日目の担当が空いていたので書いてみました。&lt;/p&gt;
+      <description>&lt;p&gt;&lt;a href=&#34;http://qiita.com/advent-calendar/2015/hashicorp&#34;&gt;HashiCorp Advent Calendar 2015&lt;/a&gt;の5日目の担当が空いていたので書いてみました。&lt;/p&gt;
 
 &lt;hr /&gt;
 
@@ -36,7 +34,9 @@
 
 &lt;p&gt;このあたりは Terraform の強みですね。&lt;/p&gt;
 
-&lt;h2 id=&#34;マルチリージョン基本編:3574440b8aec5afbdd98dd756b561ced&#34;&gt;マルチリージョン基本編&lt;/h2&gt;
+&lt;p&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;マルチリージョン基本編&#34;&gt;マルチリージョン基本編&lt;/h2&gt;
 
 &lt;p&gt;まずは基本的な複数のプロバイダの使い方についてです。&lt;/p&gt;
 
@@ -88,7 +88,7 @@ resource &amp;quot;aws_instance&amp;quot; &amp;quot;instance-singapore&amp;quot;
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;マルチリージョン応用編:3574440b8aec5afbdd98dd756b561ced&#34;&gt;マルチリージョン応用編&lt;/h2&gt;
+&lt;h2 id=&#34;マルチリージョン応用編&#34;&gt;マルチリージョン応用編&lt;/h2&gt;
 
 &lt;p&gt;マルチリージョンにする大きな理由として、冗長性の確保が挙げられると思います。
 環境を冗長構成する場合、同じ物をスタンプのように複数のリージョンに展開していくかと思いますが、前述の方法では&lt;code&gt;provider&lt;/code&gt;と&lt;code&gt;ami&lt;/code&gt;だけが違うリソースを大量に定義していかなければならず、非常にめんどくさいですし、修正時に一部のリージョンを変更し忘れるといったオペミスも発生しやすくなります。&lt;/p&gt;
@@ -103,114 +103,116 @@ resource &amp;quot;aws_instance&amp;quot; &amp;quot;instance-singapore&amp;quot;
 ./regional-resource/variables.tf
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;モジュール側のリソース定義:3574440b8aec5afbdd98dd756b561ced&#34;&gt;モジュール側のリソース定義&lt;/h3&gt;
+&lt;h3 id=&#34;モジュール側のリソース定義&#34;&gt;モジュール側のリソース定義&lt;/h3&gt;
 
 &lt;ul&gt;
-&lt;li&gt;./regional-resource/main.tf&lt;/li&gt;
+&lt;li&gt;./regional-resource/main.tf
+```
+provider &amp;ldquo;aws&amp;rdquo; {
+region = &amp;ldquo;${var.region}&amp;rdquo;
+}&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;pre&gt;&lt;code&gt;provider &amp;quot;aws&amp;quot; {
-    region = &amp;quot;${var.region}&amp;quot;
-}
-
-resource &amp;quot;aws_instance&amp;quot; &amp;quot;instance&amp;quot; {
-    instance_type               = &amp;quot;t2.micro&amp;quot;
-    ami                         = &amp;quot;${lookup(var.ami_id, var.region)}&amp;quot;
+&lt;p&gt;resource &amp;ldquo;aws_instance&amp;rdquo; &amp;ldquo;instance&amp;rdquo; {
+    instance_type               = &amp;ldquo;t2.micro&amp;rdquo;
+    ami                         = &amp;ldquo;${lookup(var.ami_id, var.region)}&amp;rdquo;
     associate_public_ip_address = true
     tag {
-        Name = &amp;quot;${var.name}&amp;quot;
+        Name = &amp;ldquo;${var.name}&amp;rdquo;
     }
-}
+}&lt;/p&gt;
 
-output &amp;quot;public_ip&amp;quot; {
-    value = &amp;quot;${aws_instance.instance.public_ip}&amp;quot;
-}
+&lt;p&gt;output &amp;ldquo;public_ip&amp;rdquo; {
+    value = &amp;ldquo;${aws_instance.instance.public_ip}&amp;rdquo;
+}&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+* ./regional-resource/variables.tf
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;ul&gt;
-&lt;li&gt;./regional-resource/variables.tf&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code&gt;variable &amp;quot;region&amp;quot; {}
-variable &amp;quot;name&amp;quot; {}
-variable &amp;quot;ami_id&amp;quot; {
+&lt;p&gt;variable &amp;ldquo;region&amp;rdquo; {}
+variable &amp;ldquo;name&amp;rdquo; {}
+variable &amp;ldquo;ami_id&amp;rdquo; {
     default {
-        ap-northeast-1  = &amp;quot;ami-383c1956&amp;quot;
-        ap-southeast-1  = &amp;quot;ami-c9b572aa&amp;quot;
-        ap-southeast-2  = &amp;quot;ami-48d38c2b&amp;quot;
-        us-east-1       = &amp;quot;ami-60b6c60a&amp;quot;
-        us-west-1       = &amp;quot;ami-d5ea86b5&amp;quot;
-        us-west-2       = &amp;quot;ami-f0091d91&amp;quot;
-        eu-west-1       = &amp;quot;ami-bff32ccc&amp;quot;
-        eu-central-1    = &amp;quot;ami-bc5b48d0&amp;quot;
-        sa-east-1       = &amp;quot;ami-6817af04&amp;quot;
+        ap-northeast-1  = &amp;ldquo;ami-383c1956&amp;rdquo;
+        ap-southeast-1  = &amp;ldquo;ami-c9b572aa&amp;rdquo;
+        ap-southeast-2  = &amp;ldquo;ami-48d38c2b&amp;rdquo;
+        us-east-1       = &amp;ldquo;ami-60b6c60a&amp;rdquo;
+        us-west-1       = &amp;ldquo;ami-d5ea86b5&amp;rdquo;
+        us-west-2       = &amp;ldquo;ami-f0091d91&amp;rdquo;
+        eu-west-1       = &amp;ldquo;ami-bff32ccc&amp;rdquo;
+        eu-central-1    = &amp;ldquo;ami-bc5b48d0&amp;rdquo;
+        sa-east-1       = &amp;ldquo;ami-6817af04&amp;rdquo;
     }
-}
+}&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+### モジュールを使う側のリソース定義
+
+* ./main.tf
+
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;モジュールを使う側のリソース定義:3574440b8aec5afbdd98dd756b561ced&#34;&gt;モジュールを使う側のリソース定義&lt;/h3&gt;
+&lt;p&gt;module &amp;ldquo;ap-northeast-1&amp;rdquo; {
+    source = &amp;ldquo;./regional-resource&amp;rdquo;&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;./main.tf&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code&gt;module &amp;quot;ap-northeast-1&amp;quot; {
-    source = &amp;quot;./regional-resource&amp;quot;
-
-    region   = &amp;quot;ap-northeast-1&amp;quot;
-    name     = &amp;quot;Tokyo&amp;quot;
-}
-module &amp;quot;ap-southeast-1&amp;quot; {
-    source = &amp;quot;./regional-resource&amp;quot;
-
-    region   = &amp;quot;ap-southeast-1&amp;quot;
-    name     = &amp;quot;Singapore&amp;quot;
-}
+&lt;pre&gt;&lt;code&gt;region   = &amp;quot;ap-northeast-1&amp;quot;
+name     = &amp;quot;Tokyo&amp;quot;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;ul&gt;
-&lt;li&gt;./global.tf&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;}
+module &amp;ldquo;ap-southeast-1&amp;rdquo; {
+    source = &amp;ldquo;./regional-resource&amp;rdquo;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;resource &amp;quot;aws_route53_zone&amp;quot; &amp;quot;primary&amp;quot; {
-   name = &amp;quot;example.com&amp;quot;
-}
+&lt;pre&gt;&lt;code&gt;region   = &amp;quot;ap-southeast-1&amp;quot;
+name     = &amp;quot;Singapore&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
 
-resource &amp;quot;aws_route53_record&amp;quot; &amp;quot;www&amp;quot; {
-   zone_id = &amp;quot;${aws_route53_zone.primary.zone_id}&amp;quot;
-   name = &amp;quot;www.example.com&amp;quot;
-   type = &amp;quot;A&amp;quot;
-   ttl = &amp;quot;300&amp;quot;
+&lt;p&gt;}&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+* ./global.tf
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;resource &amp;ldquo;aws_route53_zone&amp;rdquo; &amp;ldquo;primary&amp;rdquo; {
+   name = &amp;ldquo;example.com&amp;rdquo;
+}&lt;/p&gt;
+
+&lt;p&gt;resource &amp;ldquo;aws_route53_record&amp;rdquo; &amp;ldquo;www&amp;rdquo; {
+   zone_id = &amp;ldquo;${aws_route53_zone.primary.zone_id}&amp;rdquo;
+   name = &amp;ldquo;www.example.com&amp;rdquo;
+   type = &amp;ldquo;A&amp;rdquo;
+   ttl = &amp;ldquo;300&amp;rdquo;
    records = [
-       &amp;quot;${module.ap-northeast-1.public_ip}&amp;quot;,
-       &amp;quot;${module.ap-southeast-1.public_ip}&amp;quot;,
+       &amp;ldquo;${module.ap-northeast-1.public_ip}&amp;ldquo;,
+       &amp;ldquo;${module.ap-southeast-1.public_ip}&amp;ldquo;,
    ]
-}
+}&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+`global.tf` ではRoute53にゾーンを作成し、東京都シンガポールのインスタンスのIPアドレスを登録しています。
+
+以上のテンプレートで出来上がる構成がこんな感じです。
+
+![multi region diagram](/images/20151205/terraform_multi-region.png)
+
+### Provision
+モジュールを使うと、単に `terraform apply` とするだけではダメで先に `terraform get` を行う必要があります。
+
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;&lt;code&gt;global.tf&lt;/code&gt; ではRoute53にゾーンを作成し、東京都シンガポールのインスタンスのIPアドレスを登録しています。&lt;/p&gt;
-
-&lt;p&gt;以上のテンプレートで出来上がる構成がこんな感じです。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;https://kjmkznr.github.io/images/20151205/terraform_multi-region.png&#34; alt=&#34;multi region diagram&#34; /&gt;
-&lt;/p&gt;
-
-&lt;h3 id=&#34;provision:3574440b8aec5afbdd98dd756b561ced&#34;&gt;Provision&lt;/h3&gt;
-
-&lt;p&gt;モジュールを使うと、単に &lt;code&gt;terraform apply&lt;/code&gt; とするだけではダメで先に &lt;code&gt;terraform get&lt;/code&gt; を行う必要があります。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ terraform get -update=true
+&lt;p&gt;$ terraform get -update=true
 $ terraform plan -module-depth=-1
 $ terraform apply
-&lt;/code&gt;&lt;/pre&gt;
+```&lt;/p&gt;
 
 &lt;p&gt;今回はローカルファイルシステムにあるモジュールを使いましたが、Gitなどからも取ってくることが出来ます。(&lt;a href=&#34;https://terraform.io/docs/modules/usage.html&#34;&gt;Using Modules&lt;/a&gt;)&lt;/p&gt;
 
-&lt;h2 id=&#34;まとめ:3574440b8aec5afbdd98dd756b561ced&#34;&gt;まとめ&lt;/h2&gt;
+&lt;h2 id=&#34;まとめ&#34;&gt;まとめ&lt;/h2&gt;
 
 &lt;p&gt;このように、Terraformを使えば簡単にマルチリージョンな環境を手に入れることができます。
-マルチリージョンどころかマルチクラウドな環境も、今回よりちょっと大変ではありますが実現できます。&lt;/p&gt;
-</description>
+マルチリージョンどころかマルチクラウドな環境も、今回よりちょっと大変ではありますが実現できます。&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -219,13 +221,13 @@ $ terraform apply
       <pubDate>Fri, 23 Oct 2015 01:18:00 +0900</pubDate>
       
       <guid>https://kjmkznr.github.io/post/vault-ssh-secret-backend/</guid>
-      <description>
-
-&lt;p&gt;Vault 0.3がリリースされたときにSSHに関する機能が実装されたと言うのを見て気になっていたのですが、なかなか試せずにいたのですが、先日&lt;a href=&#34;http://connpass.com/event/19980/&#34;&gt;HashiCode#2&lt;/a&gt;に参加したので、その勢いで試してみました。&lt;/p&gt;
+      <description>&lt;p&gt;Vault 0.3がリリースされたときにSSHに関する機能が実装されたと言うのを見て気になっていたのですが、なかなか試せずにいたのですが、先日&lt;a href=&#34;http://connpass.com/event/19980/&#34;&gt;HashiCode#2&lt;/a&gt;に参加したので、その勢いで試してみました。&lt;/p&gt;
 
 &lt;p&gt;Vault の SSH Secret Backend はもの凄く大ざっぱに言うとVaultがSSHのパスワードや公開鍵の管理を行ってくれる機能です。&lt;/p&gt;
 
-&lt;h2 id=&#34;使うもの:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;使うもの&lt;/h2&gt;
+&lt;p&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;使うもの&#34;&gt;使うもの&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;Vault 0.3以上&lt;/li&gt;
@@ -238,7 +240,7 @@ $ terraform apply
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;ssh-secret-backend:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;SSH Secret Backend&lt;/h2&gt;
+&lt;h2 id=&#34;ssh-secret-backend&#34;&gt;SSH Secret Backend&lt;/h2&gt;
 
 &lt;p&gt;まずは Vault について理解を深めるために&lt;a href=&#34;https://vaultproject.io/intro/getting-started/install.html&#34;&gt;Getting Started&lt;/a&gt;を行ってみるとよいと思います。&lt;/p&gt;
 
@@ -249,7 +251,7 @@ $ terraform apply
 この dev モードはメモリだけで動作するので、終了すると設定した内容はすべて消えてしまいます。
 また、データの seal もされてないので、プロダクション環境では使わないようにしましょう。&lt;/p&gt;
 
-&lt;h3 id=&#34;vault-ssh-helper-のインストール:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;vault-ssh-helper のインストール&lt;/h3&gt;
+&lt;h3 id=&#34;vault-ssh-helper-のインストール&#34;&gt;vault-ssh-helper のインストール&lt;/h3&gt;
 
 &lt;p&gt;Vault の操作の前に vault-ssh-helper をインストールする必要があります。&lt;/p&gt;
 
@@ -282,7 +284,7 @@ UsePAM yes
 PasswordAuthentication no
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;one-time-password-type:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;One Time Password Type&lt;/h3&gt;
+&lt;h3 id=&#34;one-time-password-type&#34;&gt;One Time Password Type&lt;/h3&gt;
 
 &lt;p&gt;それでは dev mode でOTPを試してみます。&lt;/p&gt;
 
@@ -364,7 +366,7 @@ Last login: Thu Oct 22 23:59:23 2015 from localhost
 [centos@localhost ~]$
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;dynamic-type:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;Dynamic Type&lt;/h3&gt;
+&lt;h3 id=&#34;dynamic-type&#34;&gt;Dynamic Type&lt;/h3&gt;
 
 &lt;p&gt;Dynamic Typeは公開鍵を使用して認証として利用する方式です。
 仕組みとしては、Vault サーバがログイン先のサーバ・ユーザの authorized_keys に一時的に生成した公開鍵をインジェクトするというものです。&lt;/p&gt;
@@ -469,17 +471,16 @@ Key revoked with ID &#39;ssh/creds/dynamic_key_role/594ac177-f4b2-b840-31ab-4cea
 Permission denied (publickey,gssapi-keyex,gssapi-with-mic).
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;まとめ:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;まとめ&lt;/h2&gt;
+&lt;h2 id=&#34;まとめ&#34;&gt;まとめ&lt;/h2&gt;
 
 &lt;p&gt;Vaultを利用することでSSHの鍵の管理をVaultに任せてしまうことができるので、各サーバに鍵の展開を行う必要はなくなりそうです。
 今回は使ってみることを優先してみましたが、実際に利用する際は&lt;a href=&#34;https://vaultproject.io/docs/auth/index.html&#34;&gt;Auth Backends&lt;/a&gt;や&lt;a href=&#34;https://vaultproject.io/docs/audit/index.html&#34;&gt;Audit Backends&lt;/a&gt;の設定が必要です。&lt;/p&gt;
 
-&lt;h2 id=&#34;参考文献:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;参考文献&lt;/h2&gt;
+&lt;h2 id=&#34;参考文献&#34;&gt;参考文献&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://vaultproject.io/docs/secrets/ssh/index.html&#34;&gt;Secret Backend: SSH - Vault by HashiCorp&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+&lt;/ul&gt;</description>
     </item>
     
     <item>
@@ -488,11 +489,11 @@ Permission denied (publickey,gssapi-keyex,gssapi-with-mic).
       <pubDate>Mon, 05 Oct 2015 22:09:00 +0900</pubDate>
       
       <guid>https://kjmkznr.github.io/post/consul-prometheus/</guid>
-      <description>
+      <description>&lt;p&gt;Consulをサービスディスカバリに使い、Consul TemplateでPrometheusの設定ファイルを生成するという構成で、ノードが増加しても自動的にPrometheusの収集対象が増えるような構成を作ってみました。&lt;/p&gt;
 
-&lt;p&gt;Consulをサービスディスカバリに使い、Consul TemplateでPrometheusの設定ファイルを生成するという構成で、ノードが増加しても自動的にPrometheusの収集対象が増えるような構成を作ってみました。&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;prometheus:b2b2479edabad69dad66d770f3651d14&#34;&gt;Prometheus&lt;/h2&gt;
+&lt;h2 id=&#34;prometheus&#34;&gt;Prometheus&lt;/h2&gt;
 
 &lt;p&gt;&lt;a href=&#34;http://prometheus.io/&#34;&gt;Prometheus&lt;/a&gt;はSoundCloudが開発を行っている監視システムです。
 Graphiteと違いPrometheusはPull型のアーキテクチャをとっています。Prometheusサーバがexporterと呼ばれる所謂エージェントに値を取りに行く形です。&lt;/p&gt;
@@ -508,7 +509,7 @@ Pull型であれば取れなかったことが検知でき、その理由も調�
 
 &lt;p&gt;今回は Prometheus Server と node_exporter を利用します。&lt;/p&gt;
 
-&lt;h2 id=&#34;動作環境:b2b2479edabad69dad66d770f3651d14&#34;&gt;動作環境&lt;/h2&gt;
+&lt;h2 id=&#34;動作環境&#34;&gt;動作環境&lt;/h2&gt;
 
 &lt;p&gt;今回は AWS EC2 を使用します。&lt;/p&gt;
 
@@ -524,7 +525,7 @@ Pull型であれば取れなかったことが検知でき、その理由も調�
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h3 id=&#34;tags:b2b2479edabad69dad66d770f3651d14&#34;&gt;Tags&lt;/h3&gt;
+&lt;h3 id=&#34;tags&#34;&gt;Tags&lt;/h3&gt;
 
 &lt;p&gt;EC2のタグは以下のようにしておきます。&lt;/p&gt;
 
@@ -558,7 +559,7 @@ Pull型であれば取れなかったことが検知でき、その理由も調�
 &lt;/tbody&gt;
 &lt;/table&gt;
 
-&lt;h3 id=&#34;ports:b2b2479edabad69dad66d770f3651d14&#34;&gt;Ports&lt;/h3&gt;
+&lt;h3 id=&#34;ports&#34;&gt;Ports&lt;/h3&gt;
 
 &lt;table&gt;
 &lt;thead&gt;
@@ -608,7 +609,7 @@ Pull型であれば取れなかったことが検知でき、その理由も調�
 &lt;/tbody&gt;
 &lt;/table&gt;
 
-&lt;h2 id=&#34;consul-server-と-consul-template-prometheusの設定:b2b2479edabad69dad66d770f3651d14&#34;&gt;Consul Server と Consul template, Prometheusの設定&lt;/h2&gt;
+&lt;h2 id=&#34;consul-server-と-consul-template-prometheusの設定&#34;&gt;Consul Server と Consul template, Prometheusの設定&lt;/h2&gt;
 
 &lt;p&gt;&lt;a href=&#34;https://consul.io/&#34;&gt;Consul&lt;/a&gt;はPrometheusに比べれば有名なので説明は割愛。
 インストール手順も割愛。&lt;/p&gt;
@@ -632,97 +633,104 @@ Consul Serverのアドレスを取得するためにEC2のタグを参照する�
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;consul-server:b2b2479edabad69dad66d770f3651d14&#34;&gt;Consul Server&lt;/h3&gt;
+&lt;h3 id=&#34;consul-server&#34;&gt;Consul Server&lt;/h3&gt;
 
 &lt;p&gt;Upstart を使用し Consul Serverを起動させます。&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;/etc/init/consul_server.conf&lt;/li&gt;
+&lt;li&gt;/etc/init/consul_server.conf
+```
+description &amp;ldquo;Consul&amp;rdquo;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;pre&gt;&lt;code&gt;description &amp;quot;Consul&amp;quot;
+&lt;p&gt;start on runlevel [2345]
+stop on runlevel [!2345]&lt;/p&gt;
 
-start on runlevel [2345]
-stop on runlevel [!2345]
+&lt;p&gt;respawn&lt;/p&gt;
 
-respawn
-
-script
-  if [ -f &amp;quot;/etc/service/consul&amp;quot; ]; then
+&lt;p&gt;script
+  if [ -f &amp;ldquo;/etc/service/consul&amp;rdquo; ]; then
     . /etc/service/consul
-  fi
+  fi&lt;/p&gt;
 
-  # Make sure to use all our CPUs, because Consul can block a scheduler thread
-  export GOMAXPROCS=`nproc`
-  exec /usr/local/bin/consul agent \
-   -server \
-   -data-dir=&amp;quot;/var/lib/consul/&amp;quot; \
-   -bootstrap-expect １ \
-   -config-dir=&amp;quot;/etc/consul.d/&amp;quot; \
-   ${CONSUL_FLAGS} \
+&lt;p&gt;# Make sure to use all our CPUs, because Consul can block a scheduler thread
+  export GOMAXPROCS=&lt;code&gt;nproc&lt;/code&gt;
+  exec /usr/local/bin/consul agent &lt;br /&gt;
+   -server &lt;br /&gt;
+   -data-dir=&amp;ldquo;/var/lib/consul/&amp;rdquo; &lt;br /&gt;
+   -bootstrap-expect １ &lt;br /&gt;
+   -config-dir=&amp;ldquo;/etc/consul.d/&amp;rdquo; &lt;br /&gt;
+   ${CONSUL_FLAGS} &lt;br /&gt;
    &amp;gt;&amp;gt;/var/log/consul.log 2&amp;gt;&amp;amp;1
-end script
+end script&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+```bash
+$ sudo initctl start consul_server
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo initctl start consul_server
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;consul-template:b2b2479edabad69dad66d770f3651d14&#34;&gt;Consul Template&lt;/h3&gt;
+&lt;h3 id=&#34;consul-template&#34;&gt;Consul Template&lt;/h3&gt;
 
 &lt;p&gt;Consul templateはConsulのクラスタ情報を元にファイルを生成してくれます。
 クラスタに変化があると、ファイルを更新し、指定したコマンドを実行してくれます。&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;/etc/init/consul_template.conf&lt;/li&gt;
+&lt;li&gt;/etc/init/consul_template.conf
+```
+description &amp;ldquo;Consul template&amp;rdquo;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;pre&gt;&lt;code&gt;description &amp;quot;Consul template&amp;quot;
+&lt;p&gt;start on runlevel [2345]
+stop on runlevel [!2345]&lt;/p&gt;
 
-start on runlevel [2345]
-stop on runlevel [!2345]
+&lt;p&gt;respawn&lt;/p&gt;
 
-respawn
+&lt;p&gt;script
+  exec /usr/local/bin/consul-template &lt;br /&gt;
+      -consul 127.0.0.1:8500 &lt;br /&gt;
+      -template &amp;ldquo;/opt/templates/prometheus.ctmpl:/etc/prometheus/prometheus.yml:initctl restart prometheus&amp;rdquo; &amp;gt;&amp;gt; /var/log/ctemplate.log 2&amp;gt;&amp;amp;1
+end script&lt;/p&gt;
 
-script
-  exec /usr/local/bin/consul-template \
-      -consul 127.0.0.1:8500 \
-      -template &amp;quot;/opt/templates/prometheus.ctmpl:/etc/prometheus/prometheus.yml:initctl restart prometheus&amp;quot; &amp;gt;&amp;gt; /var/log/ctemplate.log 2&amp;gt;&amp;amp;1
-end script
+&lt;pre&gt;&lt;code&gt;
+```bash
+$ sudo initctl start consul_template
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo initctl start consul_template
-&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;prometheus-1&#34;&gt;Prometheus&lt;/h3&gt;
 
-&lt;h3 id=&#34;prometheus-1:b2b2479edabad69dad66d770f3651d14&#34;&gt;Prometheus&lt;/h3&gt;
-
-&lt;h4 id=&#34;テンプレートの用意:b2b2479edabad69dad66d770f3651d14&#34;&gt;テンプレートの用意&lt;/h4&gt;
+&lt;h4 id=&#34;テンプレートの用意&#34;&gt;テンプレートの用意&lt;/h4&gt;
 
 &lt;p&gt;Consul TemplateでPrometheusのコンフィグを生成するためテンプレートを用意します。&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;/opt/templates/prometheus.ctmpl&lt;/li&gt;
+&lt;li&gt;/opt/templates/prometheus.ctmpl
+```
+global:
+scrape_interval:     1s
+evaluation_interval: 3s&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;pre&gt;&lt;code&gt;global:
-  scrape_interval:     1s
-  evaluation_interval: 3s
+&lt;p&gt;labels:
+    monitor: &amp;lsquo;web monitor&amp;rsquo;&lt;/p&gt;
 
-  labels:
-    monitor: &#39;web monitor&#39;
-
-scrape_configs:
-  - job_name: &#39;prometheus&#39;
+&lt;p&gt;scrape_configs:
+  - job_name: &amp;lsquo;prometheus&amp;rsquo;
     scrape_interval: 10s
     scrape_timeout: 10s
     target_groups:
-      - targets: [&#39;localhost:9090&#39;]
+      - targets: [&amp;lsquo;localhost:9090&amp;rsquo;]&lt;/p&gt;
 
-  - job_name: &#39;web&#39;
-    scrape_interval: 10s
-    scrape_timeout: 10s
-    target_groups:
-      - targets: [{{range service &amp;quot;web&amp;quot;}}&#39;{{.Address}}:9100&#39;,{{end}}]
-&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;job_name: &amp;lsquo;web&amp;rsquo;
+scrape_interval: 10s
+scrape_timeout: 10s
+target_groups:
+
+&lt;ul&gt;
+&lt;li&gt;targets: [{{range service &amp;ldquo;web&amp;rdquo;}}&amp;lsquo;{{.Address}}:9100&amp;rsquo;,{{end}}]
+```&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;p&gt;service名は &lt;code&gt;web&lt;/code&gt; としています。
 この値は後述する Consul Agent とあわせる必要があります。&lt;/p&gt;
@@ -732,7 +740,7 @@ scrape_configs:
 &lt;p&gt;Prometheus には&lt;a href=&#34;http://prometheus.io/docs/operating/configuration/#consul-sd-configurations-consul_sd_config&#34;&gt;Consulと連携する機能&lt;/a&gt;があるようなのですが、イマイチ使い方が判りませんでした。
 これが使えれば、Consul Templateは不要かもしれません。&lt;/p&gt;
 
-&lt;h4 id=&#34;prometheusのインストール:b2b2479edabad69dad66d770f3651d14&#34;&gt;Prometheusのインストール&lt;/h4&gt;
+&lt;h4 id=&#34;prometheusのインストール&#34;&gt;Prometheusのインストール&lt;/h4&gt;
 
 &lt;p&gt;ここはまあ、普通に。
 Ansible Playbookとかにしておくと良いかもしれません。&lt;/p&gt;
@@ -750,89 +758,87 @@ $ sudo mkdir /etc/prometheus
 &lt;p&gt;初期の設定ファイルがないと起動しないので、作成しておきます。&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;/etc/prometheus/prometheus.yml&lt;/li&gt;
+&lt;li&gt;/etc/prometheus/prometheus.yml
+```yaml
+global:
+scrape_interval:     1s
+evaluation_interval: 3s&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;global:
-  scrape_interval:     1s
-  evaluation_interval: 3s
+&lt;p&gt;labels:
+    monitor: &amp;lsquo;web monitor&amp;rsquo;&lt;/p&gt;
 
-  labels:
-    monitor: &#39;web monitor&#39;
-
-scrape_configs:
-  - job_name: &#39;prometheus&#39;
+&lt;p&gt;scrape_configs:
+  - job_name: &amp;lsquo;prometheus&amp;rsquo;
     scrape_interval: 10s
     scrape_timeout: 10s
     target_groups:
-      - targets: [&#39;localhost:9090&#39;]
+      - targets: [&amp;lsquo;localhost:9090&amp;rsquo;]&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+PrometheusもUpstartで起動させます。
+
+* /etc/init/prometheus.conf
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;PrometheusもUpstartで起動させます。&lt;/p&gt;
+&lt;p&gt;description &amp;ldquo;Prometheus&amp;rdquo;&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;/etc/init/prometheus.conf&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;start on runlevel [2345]
+stop on runlevel [!2345]&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;description &amp;quot;Prometheus&amp;quot;
+&lt;p&gt;respawn&lt;/p&gt;
 
-start on runlevel [2345]
-stop on runlevel [!2345]
-
-respawn
-
-script
+&lt;p&gt;script
   /usr/local/src/prometheus/prometheus -config.file=/etc/prometheus/prometheus.yml
-end script
+end script&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+```bash
+$ sudo initctl start prometheus
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo initctl start prometheus
-&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&#34;consul-agentの設定とサービスの定義&#34;&gt;Consul Agentの設定とサービスの定義&lt;/h2&gt;
 
-&lt;h2 id=&#34;consul-agentの設定とサービスの定義:b2b2479edabad69dad66d770f3651d14&#34;&gt;Consul Agentの設定とサービスの定義&lt;/h2&gt;
-
-&lt;h3 id=&#34;consul-agent:b2b2479edabad69dad66d770f3651d14&#34;&gt;Consul Agent&lt;/h3&gt;
+&lt;h3 id=&#34;consul-agent&#34;&gt;Consul Agent&lt;/h3&gt;
 
 &lt;p&gt;こちらもConsul Serverと同じく Upstart で起動させます。
 起動する際に、Consul Serverのアドレスを AWS CLI を使って取得し、クラスタへJoinさせます。&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;/etc/init/consul_agent.conf&lt;/li&gt;
+&lt;li&gt;/etc/init/consul_agent.conf
+```
+description &amp;ldquo;Consul&amp;rdquo;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;pre&gt;&lt;code&gt;description &amp;quot;Consul&amp;quot;
+&lt;p&gt;start on runlevel [2345]
+stop on runlevel [!2345]&lt;/p&gt;
 
-start on runlevel [2345]
-stop on runlevel [!2345]
+&lt;p&gt;respawn&lt;/p&gt;
 
-respawn
-
-script
-  if [ -f &amp;quot;/etc/service/consul&amp;quot; ]; then
+&lt;p&gt;script
+  if [ -f &amp;ldquo;/etc/service/consul&amp;rdquo; ]; then
     . /etc/service/consul
-  fi
+  fi&lt;/p&gt;
 
-  # Make sure to use all our CPUs, because Consul can block a scheduler thread
-  export GOMAXPROCS=`nproc`
-  JOIN_TO=&amp;quot;$(aws ec2 describe-instances --query &#39;Reservations[].Instances[?State.Name==`running`].PrivateIpAddress&#39; --output text --filters &#39;Name=tag:consul-leader,Values=true&#39;)&amp;quot;
+&lt;p&gt;# Make sure to use all our CPUs, because Consul can block a scheduler thread
+  export GOMAXPROCS=&lt;code&gt;nproc&lt;/code&gt;
+  JOIN_TO=&amp;ldquo;$(aws ec2 describe-instances &amp;ndash;query &amp;lsquo;Reservations[].Instances[?State.Name==&lt;code&gt;running&lt;/code&gt;].PrivateIpAddress&amp;rsquo; &amp;ndash;output text &amp;ndash;filters &amp;lsquo;Name=tag:consul-leader,Values=true&amp;rsquo;)&amp;rdquo;&lt;/p&gt;
 
-  exec /usr/local/bin/consul agent \
-   -data-dir=&amp;quot;/var/lib/consul&amp;quot; \
-   -config-dir=&amp;quot;/etc/consul.d&amp;quot; \
-   -join ${JOIN_TO} \
-   ${CONSUL_FLAGS} \
+&lt;p&gt;exec /usr/local/bin/consul agent &lt;br /&gt;
+   -data-dir=&amp;ldquo;/var/lib/consul&amp;rdquo; &lt;br /&gt;
+   -config-dir=&amp;ldquo;/etc/consul.d&amp;rdquo; &lt;br /&gt;
+   -join ${JOIN_TO} &lt;br /&gt;
+   ${CONSUL_FLAGS} &lt;br /&gt;
    &amp;gt;&amp;gt;/var/log/consul.log 2&amp;gt;&amp;amp;1
-end script
-&lt;/code&gt;&lt;/pre&gt;
+end script&lt;/p&gt;
 
-&lt;p&gt;ついでにサービスの定義も行います。
-Consulは簡易なサービスのチェックも行えるようになっております。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+ついでにサービスの定義も行います。
+Consulは簡易なサービスのチェックも行えるようになっております。
 
-&lt;ul&gt;
-&lt;li&gt;/etc/consul.d/web.json&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{
+* /etc/consul.d/web.json
+```json
+{
   &amp;quot;services&amp;quot;:[
     {
       &amp;quot;name&amp;quot;: &amp;quot;Web&amp;quot;,
@@ -852,7 +858,7 @@ Consulは簡易なサービスのチェックも行えるようになってお�
 
 &lt;p&gt;これらを組み込んだAMIを作っておいて、あとはインスタンスを起動していけば自動的にどんどん監視対象が増えていきます。&lt;/p&gt;
 
-&lt;h2 id=&#34;promdash:b2b2479edabad69dad66d770f3651d14&#34;&gt;PromDash&lt;/h2&gt;
+&lt;h2 id=&#34;promdash&#34;&gt;PromDash&lt;/h2&gt;
 
 &lt;p&gt;PromDashというダッシュボード的なWebインターフェイスが提供されています。
 PromDashはRailsで出来ており、動かすのがめんどうなので、Dockerで動かすのがオススメです。&lt;/p&gt;
@@ -864,7 +870,7 @@ $ docker run -v /tmp/prom:/tmp/prom -e DATABASE_URL=sqlite3:/tmp/prom/file.sqlit
 $ docker run -d -p 3000:3000 -v /tmp/prom:/tmp/prom -e DATABASE_URL=sqlite3:/tmp/prom/file.sqlite3 prom/promdash
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;所感:b2b2479edabad69dad66d770f3651d14&#34;&gt;所感&lt;/h2&gt;
+&lt;h2 id=&#34;所感&#34;&gt;所感&lt;/h2&gt;
 
 &lt;p&gt;監視を行うのに一通りの機能は揃っていますが、長期的に運用するときにどのような問題が出るか不透明な点はあります。
 短期間使ってみた感じでは、短期間のメトリクス収集にはとても有用な感じがしました。
@@ -874,8 +880,7 @@ $ docker run -d -p 3000:3000 -v /tmp/prom:/tmp/prom -e DATABASE_URL=sqlite3:/tmp
 
 &lt;p&gt;使い分けとしては、インスタントにメトリクスをとりたい場合は pcp + Vector, 短期間のメトリクス収集には Prometheus, 長期的な監視やメトリクス収集は Zabbix や Sensu + Graphite がよいかなと。&lt;/p&gt;
 
-&lt;p&gt;ほんとはデータの管理とかやりたくないので、Mackerel, Datadog が安くなればいいですね。&lt;/p&gt;
-</description>
+&lt;p&gt;ほんとはデータの管理とかやりたくないので、Mackerel, Datadog が安くなればいいですね。&lt;/p&gt;</description>
     </item>
     
   </channel>

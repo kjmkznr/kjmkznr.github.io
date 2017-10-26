@@ -2,12 +2,11 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Vault on ただのメモ</title>
-    <link>https://kjmkznr.github.io/tags/vault/</link>
+    <link>https://kjmkznr.github.io/tags/vault/index.xml</link>
     <description>Recent content in Vault on ただのメモ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 23 Oct 2015 01:18:00 +0900</lastBuildDate>
-    <atom:link href="https://kjmkznr.github.io/tags/vault/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="/tags/vault/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>VaultのSSH Secret Backendを使ってみる</title>
@@ -15,13 +14,13 @@
       <pubDate>Fri, 23 Oct 2015 01:18:00 +0900</pubDate>
       
       <guid>https://kjmkznr.github.io/post/vault-ssh-secret-backend/</guid>
-      <description>
-
-&lt;p&gt;Vault 0.3がリリースされたときにSSHに関する機能が実装されたと言うのを見て気になっていたのですが、なかなか試せずにいたのですが、先日&lt;a href=&#34;http://connpass.com/event/19980/&#34;&gt;HashiCode#2&lt;/a&gt;に参加したので、その勢いで試してみました。&lt;/p&gt;
+      <description>&lt;p&gt;Vault 0.3がリリースされたときにSSHに関する機能が実装されたと言うのを見て気になっていたのですが、なかなか試せずにいたのですが、先日&lt;a href=&#34;http://connpass.com/event/19980/&#34;&gt;HashiCode#2&lt;/a&gt;に参加したので、その勢いで試してみました。&lt;/p&gt;
 
 &lt;p&gt;Vault の SSH Secret Backend はもの凄く大ざっぱに言うとVaultがSSHのパスワードや公開鍵の管理を行ってくれる機能です。&lt;/p&gt;
 
-&lt;h2 id=&#34;使うもの:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;使うもの&lt;/h2&gt;
+&lt;p&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;使うもの&#34;&gt;使うもの&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;Vault 0.3以上&lt;/li&gt;
@@ -34,7 +33,7 @@
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;ssh-secret-backend:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;SSH Secret Backend&lt;/h2&gt;
+&lt;h2 id=&#34;ssh-secret-backend&#34;&gt;SSH Secret Backend&lt;/h2&gt;
 
 &lt;p&gt;まずは Vault について理解を深めるために&lt;a href=&#34;https://vaultproject.io/intro/getting-started/install.html&#34;&gt;Getting Started&lt;/a&gt;を行ってみるとよいと思います。&lt;/p&gt;
 
@@ -45,7 +44,7 @@
 この dev モードはメモリだけで動作するので、終了すると設定した内容はすべて消えてしまいます。
 また、データの seal もされてないので、プロダクション環境では使わないようにしましょう。&lt;/p&gt;
 
-&lt;h3 id=&#34;vault-ssh-helper-のインストール:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;vault-ssh-helper のインストール&lt;/h3&gt;
+&lt;h3 id=&#34;vault-ssh-helper-のインストール&#34;&gt;vault-ssh-helper のインストール&lt;/h3&gt;
 
 &lt;p&gt;Vault の操作の前に vault-ssh-helper をインストールする必要があります。&lt;/p&gt;
 
@@ -78,7 +77,7 @@ UsePAM yes
 PasswordAuthentication no
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;one-time-password-type:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;One Time Password Type&lt;/h3&gt;
+&lt;h3 id=&#34;one-time-password-type&#34;&gt;One Time Password Type&lt;/h3&gt;
 
 &lt;p&gt;それでは dev mode でOTPを試してみます。&lt;/p&gt;
 
@@ -160,7 +159,7 @@ Last login: Thu Oct 22 23:59:23 2015 from localhost
 [centos@localhost ~]$
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;dynamic-type:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;Dynamic Type&lt;/h3&gt;
+&lt;h3 id=&#34;dynamic-type&#34;&gt;Dynamic Type&lt;/h3&gt;
 
 &lt;p&gt;Dynamic Typeは公開鍵を使用して認証として利用する方式です。
 仕組みとしては、Vault サーバがログイン先のサーバ・ユーザの authorized_keys に一時的に生成した公開鍵をインジェクトするというものです。&lt;/p&gt;
@@ -265,17 +264,16 @@ Key revoked with ID &#39;ssh/creds/dynamic_key_role/594ac177-f4b2-b840-31ab-4cea
 Permission denied (publickey,gssapi-keyex,gssapi-with-mic).
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;まとめ:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;まとめ&lt;/h2&gt;
+&lt;h2 id=&#34;まとめ&#34;&gt;まとめ&lt;/h2&gt;
 
 &lt;p&gt;Vaultを利用することでSSHの鍵の管理をVaultに任せてしまうことができるので、各サーバに鍵の展開を行う必要はなくなりそうです。
 今回は使ってみることを優先してみましたが、実際に利用する際は&lt;a href=&#34;https://vaultproject.io/docs/auth/index.html&#34;&gt;Auth Backends&lt;/a&gt;や&lt;a href=&#34;https://vaultproject.io/docs/audit/index.html&#34;&gt;Audit Backends&lt;/a&gt;の設定が必要です。&lt;/p&gt;
 
-&lt;h2 id=&#34;参考文献:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;参考文献&lt;/h2&gt;
+&lt;h2 id=&#34;参考文献&#34;&gt;参考文献&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://vaultproject.io/docs/secrets/ssh/index.html&#34;&gt;Secret Backend: SSH - Vault by HashiCorp&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+&lt;/ul&gt;</description>
     </item>
     
   </channel>

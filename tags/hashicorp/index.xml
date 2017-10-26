@@ -2,12 +2,11 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Hashicorp on ただのメモ</title>
-    <link>https://kjmkznr.github.io/tags/hashicorp/</link>
+    <link>https://kjmkznr.github.io/tags/hashicorp/index.xml</link>
     <description>Recent content in Hashicorp on ただのメモ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 05 Dec 2015 13:00:00 +0900</lastBuildDate>
-    <atom:link href="https://kjmkznr.github.io/tags/hashicorp/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="/tags/hashicorp/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Terraform: AWSマルチリージョンな環境を構築してみる</title>
@@ -15,9 +14,7 @@
       <pubDate>Sat, 05 Dec 2015 13:00:00 +0900</pubDate>
       
       <guid>https://kjmkznr.github.io/post/20151205/terraform-multi-region/</guid>
-      <description>
-
-&lt;p&gt;&lt;a href=&#34;http://qiita.com/advent-calendar/2015/hashicorp&#34;&gt;HashiCorp Advent Calendar 2015&lt;/a&gt;の5日目の担当が空いていたので書いてみました。&lt;/p&gt;
+      <description>&lt;p&gt;&lt;a href=&#34;http://qiita.com/advent-calendar/2015/hashicorp&#34;&gt;HashiCorp Advent Calendar 2015&lt;/a&gt;の5日目の担当が空いていたので書いてみました。&lt;/p&gt;
 
 &lt;hr /&gt;
 
@@ -36,7 +33,9 @@
 
 &lt;p&gt;このあたりは Terraform の強みですね。&lt;/p&gt;
 
-&lt;h2 id=&#34;マルチリージョン基本編:3574440b8aec5afbdd98dd756b561ced&#34;&gt;マルチリージョン基本編&lt;/h2&gt;
+&lt;p&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;マルチリージョン基本編&#34;&gt;マルチリージョン基本編&lt;/h2&gt;
 
 &lt;p&gt;まずは基本的な複数のプロバイダの使い方についてです。&lt;/p&gt;
 
@@ -88,7 +87,7 @@ resource &amp;quot;aws_instance&amp;quot; &amp;quot;instance-singapore&amp;quot;
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;マルチリージョン応用編:3574440b8aec5afbdd98dd756b561ced&#34;&gt;マルチリージョン応用編&lt;/h2&gt;
+&lt;h2 id=&#34;マルチリージョン応用編&#34;&gt;マルチリージョン応用編&lt;/h2&gt;
 
 &lt;p&gt;マルチリージョンにする大きな理由として、冗長性の確保が挙げられると思います。
 環境を冗長構成する場合、同じ物をスタンプのように複数のリージョンに展開していくかと思いますが、前述の方法では&lt;code&gt;provider&lt;/code&gt;と&lt;code&gt;ami&lt;/code&gt;だけが違うリソースを大量に定義していかなければならず、非常にめんどくさいですし、修正時に一部のリージョンを変更し忘れるといったオペミスも発生しやすくなります。&lt;/p&gt;
@@ -103,114 +102,116 @@ resource &amp;quot;aws_instance&amp;quot; &amp;quot;instance-singapore&amp;quot;
 ./regional-resource/variables.tf
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;モジュール側のリソース定義:3574440b8aec5afbdd98dd756b561ced&#34;&gt;モジュール側のリソース定義&lt;/h3&gt;
+&lt;h3 id=&#34;モジュール側のリソース定義&#34;&gt;モジュール側のリソース定義&lt;/h3&gt;
 
 &lt;ul&gt;
-&lt;li&gt;./regional-resource/main.tf&lt;/li&gt;
+&lt;li&gt;./regional-resource/main.tf
+```
+provider &amp;ldquo;aws&amp;rdquo; {
+region = &amp;ldquo;${var.region}&amp;rdquo;
+}&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;pre&gt;&lt;code&gt;provider &amp;quot;aws&amp;quot; {
-    region = &amp;quot;${var.region}&amp;quot;
-}
-
-resource &amp;quot;aws_instance&amp;quot; &amp;quot;instance&amp;quot; {
-    instance_type               = &amp;quot;t2.micro&amp;quot;
-    ami                         = &amp;quot;${lookup(var.ami_id, var.region)}&amp;quot;
+&lt;p&gt;resource &amp;ldquo;aws_instance&amp;rdquo; &amp;ldquo;instance&amp;rdquo; {
+    instance_type               = &amp;ldquo;t2.micro&amp;rdquo;
+    ami                         = &amp;ldquo;${lookup(var.ami_id, var.region)}&amp;rdquo;
     associate_public_ip_address = true
     tag {
-        Name = &amp;quot;${var.name}&amp;quot;
+        Name = &amp;ldquo;${var.name}&amp;rdquo;
     }
-}
+}&lt;/p&gt;
 
-output &amp;quot;public_ip&amp;quot; {
-    value = &amp;quot;${aws_instance.instance.public_ip}&amp;quot;
-}
+&lt;p&gt;output &amp;ldquo;public_ip&amp;rdquo; {
+    value = &amp;ldquo;${aws_instance.instance.public_ip}&amp;rdquo;
+}&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+* ./regional-resource/variables.tf
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;ul&gt;
-&lt;li&gt;./regional-resource/variables.tf&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code&gt;variable &amp;quot;region&amp;quot; {}
-variable &amp;quot;name&amp;quot; {}
-variable &amp;quot;ami_id&amp;quot; {
+&lt;p&gt;variable &amp;ldquo;region&amp;rdquo; {}
+variable &amp;ldquo;name&amp;rdquo; {}
+variable &amp;ldquo;ami_id&amp;rdquo; {
     default {
-        ap-northeast-1  = &amp;quot;ami-383c1956&amp;quot;
-        ap-southeast-1  = &amp;quot;ami-c9b572aa&amp;quot;
-        ap-southeast-2  = &amp;quot;ami-48d38c2b&amp;quot;
-        us-east-1       = &amp;quot;ami-60b6c60a&amp;quot;
-        us-west-1       = &amp;quot;ami-d5ea86b5&amp;quot;
-        us-west-2       = &amp;quot;ami-f0091d91&amp;quot;
-        eu-west-1       = &amp;quot;ami-bff32ccc&amp;quot;
-        eu-central-1    = &amp;quot;ami-bc5b48d0&amp;quot;
-        sa-east-1       = &amp;quot;ami-6817af04&amp;quot;
+        ap-northeast-1  = &amp;ldquo;ami-383c1956&amp;rdquo;
+        ap-southeast-1  = &amp;ldquo;ami-c9b572aa&amp;rdquo;
+        ap-southeast-2  = &amp;ldquo;ami-48d38c2b&amp;rdquo;
+        us-east-1       = &amp;ldquo;ami-60b6c60a&amp;rdquo;
+        us-west-1       = &amp;ldquo;ami-d5ea86b5&amp;rdquo;
+        us-west-2       = &amp;ldquo;ami-f0091d91&amp;rdquo;
+        eu-west-1       = &amp;ldquo;ami-bff32ccc&amp;rdquo;
+        eu-central-1    = &amp;ldquo;ami-bc5b48d0&amp;rdquo;
+        sa-east-1       = &amp;ldquo;ami-6817af04&amp;rdquo;
     }
-}
+}&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+### モジュールを使う側のリソース定義
+
+* ./main.tf
+
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;モジュールを使う側のリソース定義:3574440b8aec5afbdd98dd756b561ced&#34;&gt;モジュールを使う側のリソース定義&lt;/h3&gt;
+&lt;p&gt;module &amp;ldquo;ap-northeast-1&amp;rdquo; {
+    source = &amp;ldquo;./regional-resource&amp;rdquo;&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;./main.tf&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code&gt;module &amp;quot;ap-northeast-1&amp;quot; {
-    source = &amp;quot;./regional-resource&amp;quot;
-
-    region   = &amp;quot;ap-northeast-1&amp;quot;
-    name     = &amp;quot;Tokyo&amp;quot;
-}
-module &amp;quot;ap-southeast-1&amp;quot; {
-    source = &amp;quot;./regional-resource&amp;quot;
-
-    region   = &amp;quot;ap-southeast-1&amp;quot;
-    name     = &amp;quot;Singapore&amp;quot;
-}
+&lt;pre&gt;&lt;code&gt;region   = &amp;quot;ap-northeast-1&amp;quot;
+name     = &amp;quot;Tokyo&amp;quot;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;ul&gt;
-&lt;li&gt;./global.tf&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;}
+module &amp;ldquo;ap-southeast-1&amp;rdquo; {
+    source = &amp;ldquo;./regional-resource&amp;rdquo;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;resource &amp;quot;aws_route53_zone&amp;quot; &amp;quot;primary&amp;quot; {
-   name = &amp;quot;example.com&amp;quot;
-}
+&lt;pre&gt;&lt;code&gt;region   = &amp;quot;ap-southeast-1&amp;quot;
+name     = &amp;quot;Singapore&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
 
-resource &amp;quot;aws_route53_record&amp;quot; &amp;quot;www&amp;quot; {
-   zone_id = &amp;quot;${aws_route53_zone.primary.zone_id}&amp;quot;
-   name = &amp;quot;www.example.com&amp;quot;
-   type = &amp;quot;A&amp;quot;
-   ttl = &amp;quot;300&amp;quot;
+&lt;p&gt;}&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+* ./global.tf
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;resource &amp;ldquo;aws_route53_zone&amp;rdquo; &amp;ldquo;primary&amp;rdquo; {
+   name = &amp;ldquo;example.com&amp;rdquo;
+}&lt;/p&gt;
+
+&lt;p&gt;resource &amp;ldquo;aws_route53_record&amp;rdquo; &amp;ldquo;www&amp;rdquo; {
+   zone_id = &amp;ldquo;${aws_route53_zone.primary.zone_id}&amp;rdquo;
+   name = &amp;ldquo;www.example.com&amp;rdquo;
+   type = &amp;ldquo;A&amp;rdquo;
+   ttl = &amp;ldquo;300&amp;rdquo;
    records = [
-       &amp;quot;${module.ap-northeast-1.public_ip}&amp;quot;,
-       &amp;quot;${module.ap-southeast-1.public_ip}&amp;quot;,
+       &amp;ldquo;${module.ap-northeast-1.public_ip}&amp;ldquo;,
+       &amp;ldquo;${module.ap-southeast-1.public_ip}&amp;ldquo;,
    ]
-}
+}&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+`global.tf` ではRoute53にゾーンを作成し、東京都シンガポールのインスタンスのIPアドレスを登録しています。
+
+以上のテンプレートで出来上がる構成がこんな感じです。
+
+![multi region diagram](/images/20151205/terraform_multi-region.png)
+
+### Provision
+モジュールを使うと、単に `terraform apply` とするだけではダメで先に `terraform get` を行う必要があります。
+
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;&lt;code&gt;global.tf&lt;/code&gt; ではRoute53にゾーンを作成し、東京都シンガポールのインスタンスのIPアドレスを登録しています。&lt;/p&gt;
-
-&lt;p&gt;以上のテンプレートで出来上がる構成がこんな感じです。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;https://kjmkznr.github.io/images/20151205/terraform_multi-region.png&#34; alt=&#34;multi region diagram&#34; /&gt;
-&lt;/p&gt;
-
-&lt;h3 id=&#34;provision:3574440b8aec5afbdd98dd756b561ced&#34;&gt;Provision&lt;/h3&gt;
-
-&lt;p&gt;モジュールを使うと、単に &lt;code&gt;terraform apply&lt;/code&gt; とするだけではダメで先に &lt;code&gt;terraform get&lt;/code&gt; を行う必要があります。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ terraform get -update=true
+&lt;p&gt;$ terraform get -update=true
 $ terraform plan -module-depth=-1
 $ terraform apply
-&lt;/code&gt;&lt;/pre&gt;
+```&lt;/p&gt;
 
 &lt;p&gt;今回はローカルファイルシステムにあるモジュールを使いましたが、Gitなどからも取ってくることが出来ます。(&lt;a href=&#34;https://terraform.io/docs/modules/usage.html&#34;&gt;Using Modules&lt;/a&gt;)&lt;/p&gt;
 
-&lt;h2 id=&#34;まとめ:3574440b8aec5afbdd98dd756b561ced&#34;&gt;まとめ&lt;/h2&gt;
+&lt;h2 id=&#34;まとめ&#34;&gt;まとめ&lt;/h2&gt;
 
 &lt;p&gt;このように、Terraformを使えば簡単にマルチリージョンな環境を手に入れることができます。
-マルチリージョンどころかマルチクラウドな環境も、今回よりちょっと大変ではありますが実現できます。&lt;/p&gt;
-</description>
+マルチリージョンどころかマルチクラウドな環境も、今回よりちょっと大変ではありますが実現できます。&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -219,13 +220,13 @@ $ terraform apply
       <pubDate>Fri, 23 Oct 2015 01:18:00 +0900</pubDate>
       
       <guid>https://kjmkznr.github.io/post/vault-ssh-secret-backend/</guid>
-      <description>
-
-&lt;p&gt;Vault 0.3がリリースされたときにSSHに関する機能が実装されたと言うのを見て気になっていたのですが、なかなか試せずにいたのですが、先日&lt;a href=&#34;http://connpass.com/event/19980/&#34;&gt;HashiCode#2&lt;/a&gt;に参加したので、その勢いで試してみました。&lt;/p&gt;
+      <description>&lt;p&gt;Vault 0.3がリリースされたときにSSHに関する機能が実装されたと言うのを見て気になっていたのですが、なかなか試せずにいたのですが、先日&lt;a href=&#34;http://connpass.com/event/19980/&#34;&gt;HashiCode#2&lt;/a&gt;に参加したので、その勢いで試してみました。&lt;/p&gt;
 
 &lt;p&gt;Vault の SSH Secret Backend はもの凄く大ざっぱに言うとVaultがSSHのパスワードや公開鍵の管理を行ってくれる機能です。&lt;/p&gt;
 
-&lt;h2 id=&#34;使うもの:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;使うもの&lt;/h2&gt;
+&lt;p&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;使うもの&#34;&gt;使うもの&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;Vault 0.3以上&lt;/li&gt;
@@ -238,7 +239,7 @@ $ terraform apply
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;ssh-secret-backend:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;SSH Secret Backend&lt;/h2&gt;
+&lt;h2 id=&#34;ssh-secret-backend&#34;&gt;SSH Secret Backend&lt;/h2&gt;
 
 &lt;p&gt;まずは Vault について理解を深めるために&lt;a href=&#34;https://vaultproject.io/intro/getting-started/install.html&#34;&gt;Getting Started&lt;/a&gt;を行ってみるとよいと思います。&lt;/p&gt;
 
@@ -249,7 +250,7 @@ $ terraform apply
 この dev モードはメモリだけで動作するので、終了すると設定した内容はすべて消えてしまいます。
 また、データの seal もされてないので、プロダクション環境では使わないようにしましょう。&lt;/p&gt;
 
-&lt;h3 id=&#34;vault-ssh-helper-のインストール:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;vault-ssh-helper のインストール&lt;/h3&gt;
+&lt;h3 id=&#34;vault-ssh-helper-のインストール&#34;&gt;vault-ssh-helper のインストール&lt;/h3&gt;
 
 &lt;p&gt;Vault の操作の前に vault-ssh-helper をインストールする必要があります。&lt;/p&gt;
 
@@ -282,7 +283,7 @@ UsePAM yes
 PasswordAuthentication no
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;one-time-password-type:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;One Time Password Type&lt;/h3&gt;
+&lt;h3 id=&#34;one-time-password-type&#34;&gt;One Time Password Type&lt;/h3&gt;
 
 &lt;p&gt;それでは dev mode でOTPを試してみます。&lt;/p&gt;
 
@@ -364,7 +365,7 @@ Last login: Thu Oct 22 23:59:23 2015 from localhost
 [centos@localhost ~]$
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;dynamic-type:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;Dynamic Type&lt;/h3&gt;
+&lt;h3 id=&#34;dynamic-type&#34;&gt;Dynamic Type&lt;/h3&gt;
 
 &lt;p&gt;Dynamic Typeは公開鍵を使用して認証として利用する方式です。
 仕組みとしては、Vault サーバがログイン先のサーバ・ユーザの authorized_keys に一時的に生成した公開鍵をインジェクトするというものです。&lt;/p&gt;
@@ -469,17 +470,16 @@ Key revoked with ID &#39;ssh/creds/dynamic_key_role/594ac177-f4b2-b840-31ab-4cea
 Permission denied (publickey,gssapi-keyex,gssapi-with-mic).
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;まとめ:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;まとめ&lt;/h2&gt;
+&lt;h2 id=&#34;まとめ&#34;&gt;まとめ&lt;/h2&gt;
 
 &lt;p&gt;Vaultを利用することでSSHの鍵の管理をVaultに任せてしまうことができるので、各サーバに鍵の展開を行う必要はなくなりそうです。
 今回は使ってみることを優先してみましたが、実際に利用する際は&lt;a href=&#34;https://vaultproject.io/docs/auth/index.html&#34;&gt;Auth Backends&lt;/a&gt;や&lt;a href=&#34;https://vaultproject.io/docs/audit/index.html&#34;&gt;Audit Backends&lt;/a&gt;の設定が必要です。&lt;/p&gt;
 
-&lt;h2 id=&#34;参考文献:8d3d31278536bb5d63ba73eca8d91822&#34;&gt;参考文献&lt;/h2&gt;
+&lt;h2 id=&#34;参考文献&#34;&gt;参考文献&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://vaultproject.io/docs/secrets/ssh/index.html&#34;&gt;Secret Backend: SSH - Vault by HashiCorp&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+&lt;/ul&gt;</description>
     </item>
     
   </channel>

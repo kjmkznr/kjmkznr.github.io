@@ -46,13 +46,13 @@
 
     </div>
     <div class="post-content">
-      
-
-<p>Vault 0.3がリリースされたときにSSHに関する機能が実装されたと言うのを見て気になっていたのですが、なかなか試せずにいたのですが、先日<a href="http://connpass.com/event/19980/">HashiCode#2</a>に参加したので、その勢いで試してみました。</p>
+      <p>Vault 0.3がリリースされたときにSSHに関する機能が実装されたと言うのを見て気になっていたのですが、なかなか試せずにいたのですが、先日<a href="http://connpass.com/event/19980/">HashiCode#2</a>に参加したので、その勢いで試してみました。</p>
 
 <p>Vault の SSH Secret Backend はもの凄く大ざっぱに言うとVaultがSSHのパスワードや公開鍵の管理を行ってくれる機能です。</p>
 
-<h2 id="使うもの:8d3d31278536bb5d63ba73eca8d91822">使うもの</h2>
+<p></p>
+
+<h2 id="使うもの">使うもの</h2>
 
 <ul>
 <li>Vault 0.3以上</li>
@@ -65,7 +65,7 @@
 </ul></li>
 </ul>
 
-<h2 id="ssh-secret-backend:8d3d31278536bb5d63ba73eca8d91822">SSH Secret Backend</h2>
+<h2 id="ssh-secret-backend">SSH Secret Backend</h2>
 
 <p>まずは Vault について理解を深めるために<a href="https://vaultproject.io/intro/getting-started/install.html">Getting Started</a>を行ってみるとよいと思います。</p>
 
@@ -76,7 +76,7 @@
 この dev モードはメモリだけで動作するので、終了すると設定した内容はすべて消えてしまいます。
 また、データの seal もされてないので、プロダクション環境では使わないようにしましょう。</p>
 
-<h3 id="vault-ssh-helper-のインストール:8d3d31278536bb5d63ba73eca8d91822">vault-ssh-helper のインストール</h3>
+<h3 id="vault-ssh-helper-のインストール">vault-ssh-helper のインストール</h3>
 
 <p>Vault の操作の前に vault-ssh-helper をインストールする必要があります。</p>
 
@@ -109,7 +109,7 @@ UsePAM yes
 PasswordAuthentication no
 </code></pre>
 
-<h3 id="one-time-password-type:8d3d31278536bb5d63ba73eca8d91822">One Time Password Type</h3>
+<h3 id="one-time-password-type">One Time Password Type</h3>
 
 <p>それでは dev mode でOTPを試してみます。</p>
 
@@ -191,7 +191,7 @@ Last login: Thu Oct 22 23:59:23 2015 from localhost
 [centos@localhost ~]$
 </code></pre>
 
-<h3 id="dynamic-type:8d3d31278536bb5d63ba73eca8d91822">Dynamic Type</h3>
+<h3 id="dynamic-type">Dynamic Type</h3>
 
 <p>Dynamic Typeは公開鍵を使用して認証として利用する方式です。
 仕組みとしては、Vault サーバがログイン先のサーバ・ユーザの authorized_keys に一時的に生成した公開鍵をインジェクトするというものです。</p>
@@ -296,17 +296,16 @@ Key revoked with ID 'ssh/creds/dynamic_key_role/594ac177-f4b2-b840-31ab-4cea0b15
 Permission denied (publickey,gssapi-keyex,gssapi-with-mic).
 </code></pre>
 
-<h2 id="まとめ:8d3d31278536bb5d63ba73eca8d91822">まとめ</h2>
+<h2 id="まとめ">まとめ</h2>
 
 <p>Vaultを利用することでSSHの鍵の管理をVaultに任せてしまうことができるので、各サーバに鍵の展開を行う必要はなくなりそうです。
 今回は使ってみることを優先してみましたが、実際に利用する際は<a href="https://vaultproject.io/docs/auth/index.html">Auth Backends</a>や<a href="https://vaultproject.io/docs/audit/index.html">Audit Backends</a>の設定が必要です。</p>
 
-<h2 id="参考文献:8d3d31278536bb5d63ba73eca8d91822">参考文献</h2>
+<h2 id="参考文献">参考文献</h2>
 
 <ul>
 <li><a href="https://vaultproject.io/docs/secrets/ssh/index.html">Secret Backend: SSH - Vault by HashiCorp</a></li>
 </ul>
-
     </div>
     <div class="post-footer">
       
