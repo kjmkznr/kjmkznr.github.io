@@ -2,12 +2,12 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on ただのメモ</title>
-    <link>https://kjmkznr.github.io/post/index.xml</link>
+    <link>https://kjmkznr.github.io/post/</link>
     <description>Recent content in Posts on ただのメモ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 26 Oct 2017 16:00:00 +0000</lastBuildDate>
-    <atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="/post/" rel="self" type="application/rss+xml" />
     
     <item>
       <title>ISUCON7 予選参戦メモ</title>

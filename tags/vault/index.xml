@@ -2,11 +2,12 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Vault on ただのメモ</title>
-    <link>https://kjmkznr.github.io/tags/vault/index.xml</link>
+    <link>https://kjmkznr.github.io/tags/vault/</link>
     <description>Recent content in Vault on ただのメモ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <atom:link href="/tags/vault/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 23 Oct 2015 01:18:00 +0900</lastBuildDate>
+    <atom:link href="/tags/vault/" rel="self" type="application/rss+xml" />
     
     <item>
       <title>VaultのSSH Secret Backendを使ってみる</title>

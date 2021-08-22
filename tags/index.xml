@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on ただのメモ</title>
+    <link>https://kjmkznr.github.io/tags/</link>
+    <description>Recent content in Tags on ただのメモ</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 05 Dec 2015 13:00:00 +0900</lastBuildDate>
+    <atom:link href="/tags/" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Adventcalendar2015</title>
+      <link>https://kjmkznr.github.io/tags/adventcalendar2015/</link>
+      <pubDate>Sat, 05 Dec 2015 13:00:00 +0900</pubDate>
+      
+      <guid>https://kjmkznr.github.io/tags/adventcalendar2015/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Go</title>
+      <link>https://kjmkznr.github.io/tags/go/</link>
+      <pubDate>Mon, 05 Oct 2015 22:09:00 +0900</pubDate>
+      
+      <guid>https://kjmkznr.github.io/tags/go/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Hashicorp</title>
+      <link>https://kjmkznr.github.io/tags/hashicorp/</link>
+      <pubDate>Sat, 05 Dec 2015 13:00:00 +0900</pubDate>
+      
+      <guid>https://kjmkznr.github.io/tags/hashicorp/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Isucon</title>
+      <link>https://kjmkznr.github.io/tags/isucon/</link>
+      <pubDate>Thu, 26 Oct 2017 16:00:00 +0000</pubDate>
+      
+      <guid>https://kjmkznr.github.io/tags/isucon/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Metrics</title>
+      <link>https://kjmkznr.github.io/tags/metrics/</link>
+      <pubDate>Mon, 05 Oct 2015 22:09:00 +0900</pubDate>
+      
+      <guid>https://kjmkznr.github.io/tags/metrics/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Monitoring</title>
+      <link>https://kjmkznr.github.io/tags/monitoring/</link>
+      <pubDate>Mon, 05 Oct 2015 22:09:00 +0900</pubDate>
+      
+      <guid>https://kjmkznr.github.io/tags/monitoring/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Prometheus</title>
+      <link>https://kjmkznr.github.io/tags/prometheus/</link>
+      <pubDate>Mon, 05 Oct 2015 22:09:00 +0900</pubDate>
+      
+      <guid>https://kjmkznr.github.io/tags/prometheus/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Ssh</title>
+      <link>https://kjmkznr.github.io/tags/ssh/</link>
+      <pubDate>Fri, 23 Oct 2015 01:18:00 +0900</pubDate>
+      
+      <guid>https://kjmkznr.github.io/tags/ssh/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Terraform</title>
+      <link>https://kjmkznr.github.io/tags/terraform/</link>
+      <pubDate>Sat, 05 Dec 2015 13:00:00 +0900</pubDate>
+      
+      <guid>https://kjmkznr.github.io/tags/terraform/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Vault</title>
+      <link>https://kjmkznr.github.io/tags/vault/</link>
+      <pubDate>Fri, 23 Oct 2015 01:18:00 +0900</pubDate>
+      
+      <guid>https://kjmkznr.github.io/tags/vault/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

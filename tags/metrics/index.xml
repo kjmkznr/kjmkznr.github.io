@@ -2,11 +2,12 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Metrics on ただのメモ</title>
-    <link>https://kjmkznr.github.io/tags/metrics/index.xml</link>
+    <link>https://kjmkznr.github.io/tags/metrics/</link>
     <description>Recent content in Metrics on ただのメモ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <atom:link href="/tags/metrics/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 05 Oct 2015 22:09:00 +0900</lastBuildDate>
+    <atom:link href="/tags/metrics/" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Consul, Consul TemplateとPrometheusで行う簡易メトリクス収集</title>
