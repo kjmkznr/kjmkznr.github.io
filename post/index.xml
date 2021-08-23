@@ -6,8 +6,81 @@
     <description>Recent content in Posts on ただのメモ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 26 Oct 2017 16:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 22 Aug 2021 16:00:00 +0000</lastBuildDate>
     <atom:link href="/post/" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>ISUCON11 予選参戦メモ</title>
+      <link>https://kjmkznr.github.io/post/20210822/isucon11-qual/</link>
+      <pubDate>Sun, 22 Aug 2021 16:00:00 +0000</pubDate>
+      
+      <guid>https://kjmkznr.github.io/post/20210822/isucon11-qual/</guid>
+      <description>&lt;p&gt;2021/08/22 に開催された ISUCON11 の予選に参加してきたときのメモ。&lt;/p&gt;
+
+&lt;h2 id=&#34;チーム構成&#34;&gt;チーム構成&lt;/h2&gt;
+
+&lt;h3 id=&#34;チーム名&#34;&gt;チーム名&lt;/h3&gt;
+
+&lt;p&gt;Oops!&lt;/p&gt;
+
+&lt;h3 id=&#34;メンバー&#34;&gt;メンバー&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;2matzzz&lt;/li&gt;
+&lt;li&gt;nyaa&lt;/li&gt;
+&lt;li&gt;kjm&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;昔は同僚だったけど、いまはそれぞれ別の会社で働いているメンバー達。&lt;/p&gt;
+
+&lt;h3 id=&#34;選択言語&#34;&gt;選択言語&lt;/h3&gt;
+
+&lt;p&gt;Go言語&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;スコア&#34;&gt;スコア&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://kjmkznr.github.io/images/20210822/isucon11-qual-score.png&#34; alt=&#34;Oops! のみのグラフ&#34; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Best/Latest 590,351&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;結果&#34;&gt;結果&lt;/h2&gt;
+
+&lt;h2 id=&#34;最終的にチームでやったこと&#34;&gt;最終的にチームでやったこと&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;アプリケーションのビルド、ログのローテーション、サービスの再起動を行う Makefile を書いた&lt;/li&gt;
+&lt;li&gt;isu_condition table の (jia_isu_uuid, timestamp) に index&lt;/li&gt;
+&lt;li&gt;POST /api/condition/{uuid} を Bulk Insert な形に変更&lt;/li&gt;
+&lt;li&gt;isuテーブルを参照するQueryでカラムを指定
+
+&lt;ul&gt;
+&lt;li&gt;image カラムを読みたくなかった&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;dropProbability を削除&lt;/li&gt;
+&lt;li&gt;echo, nginx のログ出力停止&lt;/li&gt;
+&lt;li&gt;nginx の gzip on&lt;/li&gt;
+&lt;li&gt;App x2, DB x1&lt;/li&gt;
+&lt;li&gt;/assets を nginx からレスポンス&lt;/li&gt;
+&lt;li&gt;user をキャッシュ&lt;/li&gt;
+&lt;li&gt;isu_condition.created_at カラムを削除&lt;/li&gt;
+&lt;li&gt;isu_condition テーブルに condition_level カラムを追加&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;やろうとして間に合わなかったこと&#34;&gt;やろうとして間に合わなかったこと&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;getTrend() のキャッシュ
+
+&lt;ul&gt;
+&lt;li&gt;ラスト1時間の時点で実装されていたが、ベンチ走らせたところ GOAWAY のバグを踏んでスコアが上がらなかったのでRevert&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;icon の静的化&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
     
     <item>
       <title>ISUCON7 予選参戦メモ</title>

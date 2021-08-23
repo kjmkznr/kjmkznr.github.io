@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://kjmkznr.github.io/stylesheets/shiori.css">
+    <link href='//fonts.googleapis.com/css?family=Montserrat:700,400' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Merriweather:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="https://kjmkznr.github.io/favicon.ico">
+    <title>ISUCON11 予選参戦メモ | ただのメモ</title>
+    
+    
+
+
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <div class="navbar-toggle-wrapper visible-xs">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".js-navbar-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          </div>
+          <a href="https://kjmkznr.github.io" class="navbar-brand">ただのメモ</a>
+        </div>
+        <div class="collapse navbar-collapse js-navbar-collapse">
+          <ul class="navbar-nav nav">
+            <li><a href="https://kjmkznr.github.io/post">Archive</a></li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+
+<div class="row">
+  <div class="col-sm-8">
+    <div class="post-header">
+      <h1 class="post-title-main">ISUCON11 予選参戦メモ</h1>
+      <p class="text-muted">Aug 22, 2021</p>
+
+    </div>
+    <div class="post-content">
+      <p>2021/08/22 に開催された ISUCON11 の予選に参加してきたときのメモ。</p>
+
+<h2 id="チーム構成">チーム構成</h2>
+
+<h3 id="チーム名">チーム名</h3>
+
+<p>Oops!</p>
+
+<h3 id="メンバー">メンバー</h3>
+
+<ul>
+<li>2matzzz</li>
+<li>nyaa</li>
+<li>kjm</li>
+</ul>
+
+<p>昔は同僚だったけど、いまはそれぞれ別の会社で働いているメンバー達。</p>
+
+<h3 id="選択言語">選択言語</h3>
+
+<p>Go言語</p>
+
+<p></p>
+
+<h2 id="スコア">スコア</h2>
+
+<p><img src="https://kjmkznr.github.io/images/20210822/isucon11-qual-score.png" alt="Oops! のみのグラフ" /></p>
+
+<ul>
+<li>Best/Latest 590,351</li>
+</ul>
+
+<h2 id="結果">結果</h2>
+
+<h2 id="最終的にチームでやったこと">最終的にチームでやったこと</h2>
+
+<ul>
+<li>アプリケーションのビルド、ログのローテーション、サービスの再起動を行う Makefile を書いた</li>
+<li>isu_condition table の (jia_isu_uuid, timestamp) に index</li>
+<li>POST /api/condition/{uuid} を Bulk Insert な形に変更</li>
+<li>isuテーブルを参照するQueryでカラムを指定
+
+<ul>
+<li>image カラムを読みたくなかった</li>
+</ul></li>
+<li>dropProbability を削除</li>
+<li>echo, nginx のログ出力停止</li>
+<li>nginx の gzip on</li>
+<li>App x2, DB x1</li>
+<li>/assets を nginx からレスポンス</li>
+<li>user をキャッシュ</li>
+<li>isu_condition.created_at カラムを削除</li>
+<li>isu_condition テーブルに condition_level カラムを追加</li>
+</ul>
+
+<h3 id="やろうとして間に合わなかったこと">やろうとして間に合わなかったこと</h3>
+
+<ul>
+<li>getTrend() のキャッシュ
+
+<ul>
+<li>ラスト1時間の時点で実装されていたが、ベンチ走らせたところ GOAWAY のバグを踏んでスコアが上がらなかったのでRevert</li>
+</ul></li>
+<li>icon の静的化</li>
+</ul>
+    </div>
+    <div class="post-footer">
+      
+    </div>
+    
+  </div>
+  <div class="col-sm-4">
+    <h3>
+  Author
+</h3>
+
+<p>
+  <div class="media">
+    <img src="http://www.gravatar.com/avatar/6b632023a694f9c3d108d0d3ef819ef3?s=100" alt="KOJIMA Kazunori" class="pull-left">
+    <div class="media-body">
+      <h4 class="media-heading">KOJIMA Kazunori</h4>
+    </div>
+  </div>
+</p>
+
+<p><a href="https://twitter.com/kjm" class="twitter-follow-button" data-show-screen-name="false" data-show-count="true" data-dnt="true" data-size="large">Follow @kjm</a></p>
+
+  </div>
+</div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy; 2015.
+Built with <a href="http://gohugo.io/">Hugo</a> and
+<a href="https://github.com/chibicode/hugo-theme-shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    <script src="https://kjmkznr.github.io/javascripts/shiori.js"></script>
+    
+
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+  </body>
+</html>
+
