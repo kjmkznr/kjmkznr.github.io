@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on ただのメモ</title>
@@ -6,11 +6,7 @@
     <description>Recent content in Posts on ただのメモ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 22 Aug 2021 16:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="https://kjmkznr.github.io/post/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Sun, 22 Aug 2021 16:00:00 +0000</lastBuildDate><atom:link href="https://kjmkznr.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>ISUCON11 予選参戦メモ</title>
       <link>https://kjmkznr.github.io/post/20210822/isucon11-qual/</link>
@@ -18,28 +14,18 @@
       
       <guid>https://kjmkznr.github.io/post/20210822/isucon11-qual/</guid>
       <description>&lt;p&gt;2021/08/22 に開催された ISUCON11 の予選に参加してきたときのメモ。&lt;/p&gt;
-
 &lt;h2 id=&#34;チーム構成&#34;&gt;チーム構成&lt;/h2&gt;
-
 &lt;h3 id=&#34;チーム名&#34;&gt;チーム名&lt;/h3&gt;
-
 &lt;p&gt;Oops!&lt;/p&gt;
-
 &lt;h3 id=&#34;メンバー&#34;&gt;メンバー&lt;/h3&gt;
-
 &lt;ul&gt;
 &lt;li&gt;2matzzz&lt;/li&gt;
 &lt;li&gt;nyaa&lt;/li&gt;
 &lt;li&gt;kjm&lt;/li&gt;
 &lt;/ul&gt;
-
 &lt;p&gt;昔は同僚だったけど、いまはそれぞれ別の会社で働いているメンバー達。&lt;/p&gt;
-
 &lt;h3 id=&#34;選択言語&#34;&gt;選択言語&lt;/h3&gt;
-
-&lt;p&gt;Go言語&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;</description>
+&lt;p&gt;Go言語&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -50,28 +36,18 @@
       <guid>https://kjmkznr.github.io/post/20171026/isucon7-qual/</guid>
       <description>&lt;p&gt;2017/10/21〜22 に開催された ISUCON7 の予選に参加して、予選突破できたので、そのときのメモです。
 22日（日曜）の方に参加しました。&lt;/p&gt;
-
 &lt;h2 id=&#34;チーム構成&#34;&gt;チーム構成&lt;/h2&gt;
-
 &lt;h3 id=&#34;チーム名&#34;&gt;チーム名&lt;/h3&gt;
-
 &lt;p&gt;oops&lt;/p&gt;
-
 &lt;h3 id=&#34;メンバー&#34;&gt;メンバー&lt;/h3&gt;
-
 &lt;ul&gt;
 &lt;li&gt;2matz(インフラ、アプリ）&lt;/li&gt;
 &lt;li&gt;nyaa（アプリ、インフラ）&lt;/li&gt;
 &lt;li&gt;kjm（インフラ、アプリ）&lt;/li&gt;
 &lt;/ul&gt;
-
 &lt;p&gt;今は全員&lt;a href=&#34;http://www.4cast.co.jp/recruit/recruit/carrier.html&#34;&gt;同僚&lt;/a&gt;。&lt;/p&gt;
-
 &lt;h3 id=&#34;選択言語&#34;&gt;選択言語&lt;/h3&gt;
-
-&lt;p&gt;Go言語&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;</description>
+&lt;p&gt;Go言語&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -81,25 +57,16 @@
       
       <guid>https://kjmkznr.github.io/post/20151205/terraform-multi-region/</guid>
       <description>&lt;p&gt;&lt;a href=&#34;http://qiita.com/advent-calendar/2015/hashicorp&#34;&gt;HashiCorp Advent Calendar 2015&lt;/a&gt;の5日目の担当が空いていたので書いてみました。&lt;/p&gt;
-
-&lt;hr /&gt;
-
+&lt;hr&gt;
 &lt;p&gt;クラウドを利用されているみなさんは、リージョン障害などに備えるために複数のリージョンを利用されているかと思います。
 複数のリージョンに展開する際、どのような方法で行ってますでしょうか？&lt;/p&gt;
-
 &lt;p&gt;CloudFormation Stackを複数のリージョンで作ったり、手動でポチポチやったり、SDKやAWSCLIを使ったスクリプトを使ったり&amp;hellip;&lt;/p&gt;
-
 &lt;p&gt;Terraform を使えば簡単に複数のリージョンを統一的に扱うことが出来ます。&lt;/p&gt;
-
 &lt;p&gt;Terraform は複数のプロバイダ(AWSやGCPなど)を一つのテンプレートの中に混在することが出来ます。
 また、1種類のプロバイダを複数使用することも出来るため、AWSにマルチリージョンな環境を構築できます。&lt;/p&gt;
-
 &lt;p&gt;AWS謹製のCloudFormationは、S3やRoute53などのグローバルリソースを除き、そのCloudFormation Stackを作成しているリージョンのリソースしか作成することが出来ません。
 もちろん、GCPやDigitalOceanなど外部のサービスを利用することも出来ません。&lt;/p&gt;
-
-&lt;p&gt;このあたりは Terraform の強みですね。&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;</description>
+&lt;p&gt;このあたりは Terraform の強みですね。&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -109,10 +76,7 @@
       
       <guid>https://kjmkznr.github.io/post/vault-ssh-secret-backend/</guid>
       <description>&lt;p&gt;Vault 0.3がリリースされたときにSSHに関する機能が実装されたと言うのを見て気になっていたのですが、なかなか試せずにいたのですが、先日&lt;a href=&#34;http://connpass.com/event/19980/&#34;&gt;HashiCode#2&lt;/a&gt;に参加したので、その勢いで試してみました。&lt;/p&gt;
-
-&lt;p&gt;Vault の SSH Secret Backend はもの凄く大ざっぱに言うとVaultがSSHのパスワードや公開鍵の管理を行ってくれる機能です。&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;</description>
+&lt;p&gt;Vault の SSH Secret Backend はもの凄く大ざっぱに言うとVaultがSSHのパスワードや公開鍵の管理を行ってくれる機能です。&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -121,9 +85,7 @@
       <pubDate>Mon, 05 Oct 2015 22:09:00 +0900</pubDate>
       
       <guid>https://kjmkznr.github.io/post/consul-prometheus/</guid>
-      <description>&lt;p&gt;Consulをサービスディスカバリに使い、Consul TemplateでPrometheusの設定ファイルを生成するという構成で、ノードが増加しても自動的にPrometheusの収集対象が増えるような構成を作ってみました。&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;</description>
+      <description>&lt;p&gt;Consulをサービスディスカバリに使い、Consul TemplateでPrometheusの設定ファイルを生成するという構成で、ノードが増加しても自動的にPrometheusの収集対象が増えるような構成を作ってみました。&lt;/p&gt;</description>
     </item>
     
   </channel>

@@ -1,16 +1,12 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Ssh on ただのメモ</title>
+    <title>ssh on ただのメモ</title>
     <link>https://kjmkznr.github.io/tags/ssh/</link>
-    <description>Recent content in Ssh on ただのメモ</description>
+    <description>Recent content in ssh on ただのメモ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 23 Oct 2015 01:18:00 +0900</lastBuildDate>
-    
-	<atom:link href="https://kjmkznr.github.io/tags/ssh/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Fri, 23 Oct 2015 01:18:00 +0900</lastBuildDate><atom:link href="https://kjmkznr.github.io/tags/ssh/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>VaultのSSH Secret Backendを使ってみる</title>
       <link>https://kjmkznr.github.io/post/vault-ssh-secret-backend/</link>
@@ -18,10 +14,7 @@
       
       <guid>https://kjmkznr.github.io/post/vault-ssh-secret-backend/</guid>
       <description>&lt;p&gt;Vault 0.3がリリースされたときにSSHに関する機能が実装されたと言うのを見て気になっていたのですが、なかなか試せずにいたのですが、先日&lt;a href=&#34;http://connpass.com/event/19980/&#34;&gt;HashiCode#2&lt;/a&gt;に参加したので、その勢いで試してみました。&lt;/p&gt;
-
-&lt;p&gt;Vault の SSH Secret Backend はもの凄く大ざっぱに言うとVaultがSSHのパスワードや公開鍵の管理を行ってくれる機能です。&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;</description>
+&lt;p&gt;Vault の SSH Secret Backend はもの凄く大ざっぱに言うとVaultがSSHのパスワードや公開鍵の管理を行ってくれる機能です。&lt;/p&gt;</description>
     </item>
     
   </channel>

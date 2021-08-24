@@ -1,16 +1,12 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Adventcalendar2015 on ただのメモ</title>
+    <title>adventcalendar2015 on ただのメモ</title>
     <link>https://kjmkznr.github.io/tags/adventcalendar2015/</link>
-    <description>Recent content in Adventcalendar2015 on ただのメモ</description>
+    <description>Recent content in adventcalendar2015 on ただのメモ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 05 Dec 2015 13:00:00 +0900</lastBuildDate>
-    
-	<atom:link href="https://kjmkznr.github.io/tags/adventcalendar2015/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Sat, 05 Dec 2015 13:00:00 +0900</lastBuildDate><atom:link href="https://kjmkznr.github.io/tags/adventcalendar2015/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Terraform: AWSマルチリージョンな環境を構築してみる</title>
       <link>https://kjmkznr.github.io/post/20151205/terraform-multi-region/</link>
@@ -18,25 +14,16 @@
       
       <guid>https://kjmkznr.github.io/post/20151205/terraform-multi-region/</guid>
       <description>&lt;p&gt;&lt;a href=&#34;http://qiita.com/advent-calendar/2015/hashicorp&#34;&gt;HashiCorp Advent Calendar 2015&lt;/a&gt;の5日目の担当が空いていたので書いてみました。&lt;/p&gt;
-
-&lt;hr /&gt;
-
+&lt;hr&gt;
 &lt;p&gt;クラウドを利用されているみなさんは、リージョン障害などに備えるために複数のリージョンを利用されているかと思います。
 複数のリージョンに展開する際、どのような方法で行ってますでしょうか？&lt;/p&gt;
-
 &lt;p&gt;CloudFormation Stackを複数のリージョンで作ったり、手動でポチポチやったり、SDKやAWSCLIを使ったスクリプトを使ったり&amp;hellip;&lt;/p&gt;
-
 &lt;p&gt;Terraform を使えば簡単に複数のリージョンを統一的に扱うことが出来ます。&lt;/p&gt;
-
 &lt;p&gt;Terraform は複数のプロバイダ(AWSやGCPなど)を一つのテンプレートの中に混在することが出来ます。
 また、1種類のプロバイダを複数使用することも出来るため、AWSにマルチリージョンな環境を構築できます。&lt;/p&gt;
-
 &lt;p&gt;AWS謹製のCloudFormationは、S3やRoute53などのグローバルリソースを除き、そのCloudFormation Stackを作成しているリージョンのリソースしか作成することが出来ません。
 もちろん、GCPやDigitalOceanなど外部のサービスを利用することも出来ません。&lt;/p&gt;
-
-&lt;p&gt;このあたりは Terraform の強みですね。&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;</description>
+&lt;p&gt;このあたりは Terraform の強みですね。&lt;/p&gt;</description>
     </item>
     
   </channel>

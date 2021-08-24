@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Go on ただのメモ</title>
@@ -6,20 +6,14 @@
     <description>Recent content in Go on ただのメモ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 05 Oct 2015 22:09:00 +0900</lastBuildDate>
-    
-	<atom:link href="https://kjmkznr.github.io/tags/go/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Mon, 05 Oct 2015 22:09:00 +0900</lastBuildDate><atom:link href="https://kjmkznr.github.io/tags/go/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Consul, Consul TemplateとPrometheusで行う簡易メトリクス収集</title>
       <link>https://kjmkznr.github.io/post/consul-prometheus/</link>
       <pubDate>Mon, 05 Oct 2015 22:09:00 +0900</pubDate>
       
       <guid>https://kjmkznr.github.io/post/consul-prometheus/</guid>
-      <description>&lt;p&gt;Consulをサービスディスカバリに使い、Consul TemplateでPrometheusの設定ファイルを生成するという構成で、ノードが増加しても自動的にPrometheusの収集対象が増えるような構成を作ってみました。&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;</description>
+      <description>&lt;p&gt;Consulをサービスディスカバリに使い、Consul TemplateでPrometheusの設定ファイルを生成するという構成で、ノードが増加しても自動的にPrometheusの収集対象が増えるような構成を作ってみました。&lt;/p&gt;</description>
     </item>
     
   </channel>

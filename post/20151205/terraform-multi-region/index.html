@@ -47,33 +47,20 @@
     </div>
     <div class="post-content">
       <p><a href="http://qiita.com/advent-calendar/2015/hashicorp">HashiCorp Advent Calendar 2015</a>の5日目の担当が空いていたので書いてみました。</p>
-
-<hr />
-
+<hr>
 <p>クラウドを利用されているみなさんは、リージョン障害などに備えるために複数のリージョンを利用されているかと思います。
 複数のリージョンに展開する際、どのような方法で行ってますでしょうか？</p>
-
 <p>CloudFormation Stackを複数のリージョンで作ったり、手動でポチポチやったり、SDKやAWSCLIを使ったスクリプトを使ったり&hellip;</p>
-
 <p>Terraform を使えば簡単に複数のリージョンを統一的に扱うことが出来ます。</p>
-
 <p>Terraform は複数のプロバイダ(AWSやGCPなど)を一つのテンプレートの中に混在することが出来ます。
 また、1種類のプロバイダを複数使用することも出来るため、AWSにマルチリージョンな環境を構築できます。</p>
-
 <p>AWS謹製のCloudFormationは、S3やRoute53などのグローバルリソースを除き、そのCloudFormation Stackを作成しているリージョンのリソースしか作成することが出来ません。
 もちろん、GCPやDigitalOceanなど外部のサービスを利用することも出来ません。</p>
-
 <p>このあたりは Terraform の強みですね。</p>
-
-<p></p>
-
 <h2 id="マルチリージョン基本編">マルチリージョン基本編</h2>
-
 <p>まずは基本的な複数のプロバイダの使い方についてです。</p>
-
 <p>シングルリージョンでAWSを利用する場合は以下のように記述します。
 <code>aws_</code> で始まるリソースは <code>aws</code> プロバイダが利用されます。</p>
-
 <pre><code>provider &quot;aws&quot; {
     region = &quot;ap-northeast-1&quot;
 }
@@ -85,13 +72,9 @@ resource &quot;aws_instance&quot; &quot;instance-tokyo&quot; {
         Name = &quot;Tokyo Region&quot;
     }
 }
-</code></pre>
-
-<p>マルチリージョンで利用したい場合、<code>provider &quot;aws&quot;</code> を複数書けば良いというわけではありません。
+</code></pre><p>マルチリージョンで利用したい場合、<code>provider &quot;aws&quot;</code> を複数書けば良いというわけではありません。
 と言ってもそんなに難しいことをやるわけではなく、どちらのプロバイダを利用するのかを識別するために<code>alias</code>を追加するだけです。</p>
-
 <p>あとは Resource の定義でどのプロバイダを使用するかを<code>provider</code>で指定します。</p>
-
 <pre><code>provider &quot;aws&quot; {
     region = &quot;ap-northeast-1&quot;
     alias = &quot;tokyo&quot;
@@ -117,131 +100,96 @@ resource &quot;aws_instance&quot; &quot;instance-singapore&quot; {
         Name = &quot;Singapore Region&quot;
     }
 }
-</code></pre>
-
-<h2 id="マルチリージョン応用編">マルチリージョン応用編</h2>
-
+</code></pre><h2 id="マルチリージョン応用編">マルチリージョン応用編</h2>
 <p>マルチリージョンにする大きな理由として、冗長性の確保が挙げられると思います。
 環境を冗長構成する場合、同じ物をスタンプのように複数のリージョンに展開していくかと思いますが、前述の方法では<code>provider</code>と<code>ami</code>だけが違うリソースを大量に定義していかなければならず、非常にめんどくさいですし、修正時に一部のリージョンを変更し忘れるといったオペミスも発生しやすくなります。</p>
-
 <p>リージョン毎に同じリソースを展開する場合、共通する部分をモジュールとしてまとめてしまうのが簡単です。</p>
-
 <p>今回サンプルとして作成するテンプレートのディレクトリ構成は以下のようにします。</p>
-
 <pre><code>./global.tf
 ./main.tf
 ./regional-resource/main.tf
 ./regional-resource/variables.tf
-</code></pre>
-
-<h3 id="モジュール側のリソース定義">モジュール側のリソース定義</h3>
-
+</code></pre><h3 id="モジュール側のリソース定義">モジュール側のリソース定義</h3>
 <ul>
-<li>./regional-resource/main.tf
-```
-provider &ldquo;aws&rdquo; {
-region = &ldquo;${var.region}&rdquo;
-}</li>
+<li>./regional-resource/main.tf</li>
 </ul>
+<pre><code>provider &quot;aws&quot; {
+    region = &quot;${var.region}&quot;
+}
 
-<p>resource &ldquo;aws_instance&rdquo; &ldquo;instance&rdquo; {
-    instance_type               = &ldquo;t2.micro&rdquo;
-    ami                         = &ldquo;${lookup(var.ami_id, var.region)}&rdquo;
+resource &quot;aws_instance&quot; &quot;instance&quot; {
+    instance_type               = &quot;t2.micro&quot;
+    ami                         = &quot;${lookup(var.ami_id, var.region)}&quot;
     associate_public_ip_address = true
     tag {
-        Name = &ldquo;${var.name}&rdquo;
+        Name = &quot;${var.name}&quot;
     }
-}</p>
+}
 
-<p>output &ldquo;public_ip&rdquo; {
-    value = &ldquo;${aws_instance.instance.public_ip}&rdquo;
-}</p>
-
-<pre><code>
-* ./regional-resource/variables.tf
-</code></pre>
-
-<p>variable &ldquo;region&rdquo; {}
-variable &ldquo;name&rdquo; {}
-variable &ldquo;ami_id&rdquo; {
+output &quot;public_ip&quot; {
+    value = &quot;${aws_instance.instance.public_ip}&quot;
+}
+</code></pre><ul>
+<li>./regional-resource/variables.tf</li>
+</ul>
+<pre><code>variable &quot;region&quot; {}
+variable &quot;name&quot; {}
+variable &quot;ami_id&quot; {
     default {
-        ap-northeast-1  = &ldquo;ami-383c1956&rdquo;
-        ap-southeast-1  = &ldquo;ami-c9b572aa&rdquo;
-        ap-southeast-2  = &ldquo;ami-48d38c2b&rdquo;
-        us-east-1       = &ldquo;ami-60b6c60a&rdquo;
-        us-west-1       = &ldquo;ami-d5ea86b5&rdquo;
-        us-west-2       = &ldquo;ami-f0091d91&rdquo;
-        eu-west-1       = &ldquo;ami-bff32ccc&rdquo;
-        eu-central-1    = &ldquo;ami-bc5b48d0&rdquo;
-        sa-east-1       = &ldquo;ami-6817af04&rdquo;
+        ap-northeast-1  = &quot;ami-383c1956&quot;
+        ap-southeast-1  = &quot;ami-c9b572aa&quot;
+        ap-southeast-2  = &quot;ami-48d38c2b&quot;
+        us-east-1       = &quot;ami-60b6c60a&quot;
+        us-west-1       = &quot;ami-d5ea86b5&quot;
+        us-west-2       = &quot;ami-f0091d91&quot;
+        eu-west-1       = &quot;ami-bff32ccc&quot;
+        eu-central-1    = &quot;ami-bc5b48d0&quot;
+        sa-east-1       = &quot;ami-6817af04&quot;
     }
-}</p>
+}
+</code></pre><h3 id="モジュールを使う側のリソース定義">モジュールを使う側のリソース定義</h3>
+<ul>
+<li>./main.tf</li>
+</ul>
+<pre><code>module &quot;ap-northeast-1&quot; {
+    source = &quot;./regional-resource&quot;
 
-<pre><code>
-### モジュールを使う側のリソース定義
+    region   = &quot;ap-northeast-1&quot;
+    name     = &quot;Tokyo&quot;
+}
+module &quot;ap-southeast-1&quot; {
+    source = &quot;./regional-resource&quot;
 
-* ./main.tf
+    region   = &quot;ap-southeast-1&quot;
+    name     = &quot;Singapore&quot;
+}
+</code></pre><ul>
+<li>./global.tf</li>
+</ul>
+<pre><code>resource &quot;aws_route53_zone&quot; &quot;primary&quot; {
+   name = &quot;example.com&quot;
+}
 
-</code></pre>
-
-<p>module &ldquo;ap-northeast-1&rdquo; {
-    source = &ldquo;./regional-resource&rdquo;</p>
-
-<pre><code>region   = &quot;ap-northeast-1&quot;
-name     = &quot;Tokyo&quot;
-</code></pre>
-
-<p>}
-module &ldquo;ap-southeast-1&rdquo; {
-    source = &ldquo;./regional-resource&rdquo;</p>
-
-<pre><code>region   = &quot;ap-southeast-1&quot;
-name     = &quot;Singapore&quot;
-</code></pre>
-
-<p>}</p>
-
-<pre><code>
-* ./global.tf
-
-</code></pre>
-
-<p>resource &ldquo;aws_route53_zone&rdquo; &ldquo;primary&rdquo; {
-   name = &ldquo;example.com&rdquo;
-}</p>
-
-<p>resource &ldquo;aws_route53_record&rdquo; &ldquo;www&rdquo; {
-   zone_id = &ldquo;${aws_route53_zone.primary.zone_id}&rdquo;
-   name = &ldquo;www.example.com&rdquo;
-   type = &ldquo;A&rdquo;
-   ttl = &ldquo;300&rdquo;
+resource &quot;aws_route53_record&quot; &quot;www&quot; {
+   zone_id = &quot;${aws_route53_zone.primary.zone_id}&quot;
+   name = &quot;www.example.com&quot;
+   type = &quot;A&quot;
+   ttl = &quot;300&quot;
    records = [
-       &ldquo;${module.ap-northeast-1.public_ip}&ldquo;,
-       &ldquo;${module.ap-southeast-1.public_ip}&ldquo;,
+       &quot;${module.ap-northeast-1.public_ip}&quot;,
+       &quot;${module.ap-southeast-1.public_ip}&quot;,
    ]
-}</p>
-
-<pre><code>
-`global.tf` ではRoute53にゾーンを作成し、東京都シンガポールのインスタンスのIPアドレスを登録しています。
-
-以上のテンプレートで出来上がる構成がこんな感じです。
-
-![multi region diagram](/images/20151205/terraform_multi-region.png)
-
-### Provision
-モジュールを使うと、単に `terraform apply` とするだけではダメで先に `terraform get` を行う必要があります。
-
-</code></pre>
-
-<p>$ terraform get -update=true
+}
+</code></pre><p><code>global.tf</code> ではRoute53にゾーンを作成し、東京都シンガポールのインスタンスのIPアドレスを登録しています。</p>
+<p>以上のテンプレートで出来上がる構成がこんな感じです。</p>
+<p><img src="https://kjmkznr.github.io/images/20151205/terraform_multi-region.png" alt="multi region diagram"></p>
+<h3 id="provision">Provision</h3>
+<p>モジュールを使うと、単に <code>terraform apply</code> とするだけではダメで先に <code>terraform get</code> を行う必要があります。</p>
+<pre><code>$ terraform get -update=true
 $ terraform plan -module-depth=-1
 $ terraform apply
-```</p>
-
-<p>今回はローカルファイルシステムにあるモジュールを使いましたが、Gitなどからも取ってくることが出来ます。(<a href="https://terraform.io/docs/modules/usage.html">Using Modules</a>)</p>
-
+</code></pre><p>今回はローカルファイルシステムにあるモジュールを使いましたが、Gitなどからも取ってくることが出来ます。(<a href="https://terraform.io/docs/modules/usage.html">Using Modules</a>)</p>
 <h2 id="まとめ">まとめ</h2>
-
 <p>このように、Terraformを使えば簡単にマルチリージョンな環境を手に入れることができます。
 マルチリージョンどころかマルチクラウドな環境も、今回よりちょっと大変ではありますが実現できます。</p>
     </div>
