@@ -6,7 +6,28 @@
     <description>Recent content in Posts on ただのメモ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 22 Aug 2021 16:00:00 +0000</lastBuildDate><atom:link href="https://kjmkznr.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 19 Sep 2021 02:32:00 +0000</lastBuildDate><atom:link href="https://kjmkznr.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ISUCON11 本選参戦メモ</title>
+      <link>https://kjmkznr.github.io/post/20210919/isucon11-final/</link>
+      <pubDate>Sun, 19 Sep 2021 02:32:00 +0000</pubDate>
+      
+      <guid>https://kjmkznr.github.io/post/20210919/isucon11-final/</guid>
+      <description>&lt;p&gt;2021-09-18 に開催された ISUCON11 の本選に参加してきたときのメモ。&lt;/p&gt;
+&lt;h2 id=&#34;チーム構成&#34;&gt;チーム構成&lt;/h2&gt;
+&lt;h3 id=&#34;チーム名&#34;&gt;チーム名&lt;/h3&gt;
+&lt;p&gt;Oops!&lt;/p&gt;
+&lt;h3 id=&#34;メンバー&#34;&gt;メンバー&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;2matzzz&lt;/li&gt;
+&lt;li&gt;nyaa&lt;/li&gt;
+&lt;li&gt;kjm&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;昔は同僚だったけど、いまはそれぞれ別の会社で働いているメンバー達。&lt;/p&gt;
+&lt;h3 id=&#34;選択言語&#34;&gt;選択言語&lt;/h3&gt;
+&lt;p&gt;Go言語&lt;/p&gt;</description>
+    </item>
+    
     <item>
       <title>ISUCON11 予選参戦メモ</title>
       <link>https://kjmkznr.github.io/post/20210822/isucon11-qual/</link>
