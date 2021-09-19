@@ -165,7 +165,7 @@ Consul Serverのアドレスを取得するためにEC2のタグを参照する�
 <ul>
 <li>/etc/init/consul_server.conf</li>
 </ul>
-<pre><code>description &quot;Consul&quot;
+<pre tabindex="0"><code>description &quot;Consul&quot;
 
 start on runlevel [2345]
 stop on runlevel [!2345]
@@ -194,7 +194,7 @@ end script
 <ul>
 <li>/etc/init/consul_template.conf</li>
 </ul>
-<pre><code>description &quot;Consul template&quot;
+<pre tabindex="0"><code>description &quot;Consul template&quot;
 
 start on runlevel [2345]
 stop on runlevel [!2345]
@@ -213,7 +213,7 @@ end script
 <ul>
 <li>/opt/templates/prometheus.ctmpl</li>
 </ul>
-<pre><code>global:
+<pre tabindex="0"><code>global:
   scrape_interval:     1s
   evaluation_interval: 3s
 
@@ -269,7 +269,7 @@ $ sudo mkdir /etc/prometheus
 <ul>
 <li>/etc/init/prometheus.conf</li>
 </ul>
-<pre><code>description &quot;Prometheus&quot;
+<pre tabindex="0"><code>description &quot;Prometheus&quot;
 
 start on runlevel [2345]
 stop on runlevel [!2345]
@@ -287,7 +287,7 @@ end script
 <ul>
 <li>/etc/init/consul_agent.conf</li>
 </ul>
-<pre><code>description &quot;Consul&quot;
+<pre tabindex="0"><code>description &quot;Consul&quot;
 
 start on runlevel [2345]
 stop on runlevel [!2345]
