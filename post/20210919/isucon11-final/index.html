@@ -363,9 +363,16 @@
 </tbody>
 </table>
 <h2 id="結果">結果</h2>
-<ul>
-<li>TVer賞ありがとうございます！</li>
-</ul>
+<blockquote>
+<p>(85,666) Oops! (提出課題のダウンロードが404)</p>
+</blockquote>
+<p>ブラウザ動作確認失敗で失格でした！</p>
+<blockquote>
+<p>TVer賞
+新しいベストスコア - 今までのベストスコア が大きい4チームにChromecast With Google TVを人数分。
+Oops! （22,825点差を更新）</p>
+</blockquote>
+<p>TVer賞ありがとうございます！</p>
 <h2 id="最終的にチームでやったこと">最終的にチームでやったこと</h2>
 <h3 id="1000---最終スコア-36154">10:00 - 最終スコア 36,154</h3>
 <ul>
@@ -414,6 +421,35 @@
 <li>nginx の秘伝のたれ</li>
 <li>再起動試験</li>
 </ul>
+<h2 id="2021-09-20追記-ブラウザ動作確認失敗に関して">2021-09-20追記: ブラウザ動作確認失敗に関して</h2>
+<blockquote>
+<p>(85,666) Oops! (提出課題のダウンロードが404)</p>
+</blockquote>
+<p>提出課題のダウンロードというのは以下のEndpointだと思われます</p>
+<ul>
+<li><code>GET /api/courses/:courseID/classes/:classID/assignments/export</code> 提出済みの課題ファイルをzip形式で一括ダウンロード</li>
+</ul>
+<p>Goのアプリ内の関数でいうと <code>DownloadSubmittedAssignments()</code> です。
+今回、3つほど修正を加えていたのですが、最後に行なった以下の修正に問題があったと思われます。</p>
+<blockquote>
+<ul>
+<li>#14 DownloadSubmittedAssignments() のトランザクションを排除(71,785)</li>
+</ul>
+</blockquote>
+<p>この修正のうち Class が存在しているかのチェックする処理に問題がありました。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">if</span> <span style="color:#a6e22e">result</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">DB</span>.<span style="color:#a6e22e">Exec</span>(<span style="color:#e6db74">&#34;UPDATE `classes` SET `submission_closed` = true WHERE `id` = ?&#34;</span>, <span style="color:#a6e22e">classID</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+  <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Logger</span>().<span style="color:#a6e22e">Error</span>(<span style="color:#a6e22e">err</span>)
+  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">NoContent</span>(<span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">StatusInternalServerError</span>)
+} <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">classCount</span>, <span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">RowsAffected</span>(); <span style="color:#a6e22e">classCount</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">String</span>(<span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">StatusNotFound</span>, <span style="color:#e6db74">&#34;No such class.&#34;</span>)
+}
+</code></pre></div><p><code>SELECT COUNT(*)</code> の代わりに、<code>UPDATE</code> できた行数が0の場合にClassが存在しないという扱いにしておりました。
+2度アクセスすると、既にClassの <code>submission_closed</code> は <code>true</code> に設定されているため <code>result.RowsAffected()</code> は0になってしまい、
+404がレスポンスされてしまう結果となりました。</p>
+<p>ベンチマーカーでは1度しかアクセスしないため、Failにならずに済んでいたのだと思われます。
+最終的にブラウザで試験を行うという重要なことをやっていなかったのが問題であったと反省しております。</p>
+<p>また、二度目の <code>UPDATE</code> の際は0行になるという点に関して仕様をきちんと把握できていなかったため、このようなコードを書いてしまいました。
+ひとつ勉強になりました。</p>
     </div>
     <div class="post-footer">
       
